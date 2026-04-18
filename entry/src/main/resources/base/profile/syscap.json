@@ -1,0 +1,5 @@
+{
+  "syscap": [
+    "SystemCapability.ArkUI.ArkUI.Full"
+  ]
+}
