@@ -1,18 +1,18 @@
 import { DeviceInfoCard } from '../components/device/DeviceInfoCard'
 import { ControlConsole } from '../components/control/ControlConsole'
 import { DateUtils } from '../utils/DateUtils'
-
+import { network_connect } from "ets/pages/network_connect";
 /**
  * 设备 Tab 主页：承载「设备」导航目标页，用于设备列表、控制面板等
  */
-@Component
+@ComponentV2
 export struct DeviceHomePage {
   /** 设备名称 */
-  @State deviceName: string = '设备名称';
+  @Local deviceName: string = '设备名称';
   /** 是否在线 */
-  @State isOnline: boolean = true;
+  @Local isOnline: boolean = network_connect.state;
   /** 更新时间 */
-  @State updateTime: string = '';
+  @Local updateTime: string = '';
 
   aboutToAppear() {
     // 初始化更新时间
