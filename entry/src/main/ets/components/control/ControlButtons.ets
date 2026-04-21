@@ -16,35 +16,32 @@ export struct ControlButtons {
 
   build() {
     Row({ space: AppDimensions.SPACING_MD }) {
-      this.ControlButton('展示模式', this.selectedButton === ButtonType.DISPLAY, ButtonType.DISPLAY)
-      this.ControlButton('告警模式', this.selectedButton === ButtonType.ALARM, ButtonType.ALARM)
-      this.ControlButton('静音模式', this.selectedButton === ButtonType.MUTE, ButtonType.MUTE)
+      this.ControlButton('展示模式', ButtonType.DISPLAY)
+      this.ControlButton('告警模式', ButtonType.ALARM)
+      this.ControlButton('静音模式', ButtonType.MUTE)
     }
     .width('100%')
     .justifyContent(FlexAlign.SpaceBetween)
   }
 
   @Builder
-  ControlButton(text: string, isSelected: boolean, type: ButtonType) {
+  ControlButton(text: string, type: ButtonType) {
+    // 直接读取 this.selectedButton，确保 ArkTS 能正确追踪响应式依赖
     Text(text)
       .fontSize(AppDimensions.FONT_SIZE_SM)
-      .fontColor(isSelected ? AppColors.TEXT_PRIMARY : AppColors.BUTTON_TEXT)
-      .fontWeight(isSelected ? FontWeight.Medium : FontWeight.Normal)
+      .fontColor(this.selectedButton === type ? AppColors.TEXT_PRIMARY : AppColors.BUTTON_TEXT)
+      .fontWeight(this.selectedButton === type ? FontWeight.Medium : FontWeight.Normal)
       .padding({ left: AppDimensions.SPACING_MD, right: AppDimensions.SPACING_MD, top: 12, bottom: 12 })
-      .backgroundColor(isSelected ? AppColors.BUTTON_HOVER : AppColors.BUTTON_NORMAL)
+      .backgroundColor(this.selectedButton === type ? AppColors.BUTTON_HOVER : AppColors.BUTTON_NORMAL)
       .borderRadius(AppDimensions.RADIUS_MD)
       .borderWidth(1)
-      .borderColor(isSelected ? AppColors.INFO : AppColors.BUTTON_BORDER)
+      .borderColor(this.selectedButton === type ? AppColors.INFO : AppColors.BUTTON_BORDER)
       .layoutWeight(1)
       .textAlign(TextAlign.Center)
       .height(44)
       .onClick(() => {
-        console.log('ControlButton onClick triggered for type:', type);
         if (this.onButtonClick) {
-          console.log('Calling onButtonClick callback');
           this.onButtonClick(type);
-        } else {
-          console.log('onButtonClick callback is undefined');
         }
       })
   }

@@ -1,19 +1,21 @@
 {
   "app": {
+//signingConfigs签名文件，使用时请删掉"signingConfigs"并改成自己的文件
     "signingConfigs": [
       {
         "name": "default",
         "material": {
-          "certpath": "C:/Users/34014/.ohos/config/openharmony/default_SmartController_PoPV38zD02F1vDkUhW8HGEgFxik4xZ_THx8DGDiIrZE=.cer",
+          "certpath": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.cer",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001AFFA5C52643A41F0602AABDCAE1A26A18F8189793F7DDFFFDABFD1E12155E66E9C9404A0A96AF",
-          "profile": "C:/Users/34014/.ohos/config/openharmony/default_SmartController_PoPV38zD02F1vDkUhW8HGEgFxik4xZ_THx8DGDiIrZE=.p7b",
+          "keyPassword": "0000001AF10AD9671D8BB1400C8A3F2A5F2EA25894474A3294A0BB8F5309498A3C693B582FE3A41EF52F",
+          "profile": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.p7b",
           "signAlg": "SHA256withECDSA",
-          "storeFile": "C:/Users/34014/.ohos/config/openharmony/default_SmartController_PoPV38zD02F1vDkUhW8HGEgFxik4xZ_THx8DGDiIrZE=.p12",
-          "storePassword": "0000001A26EFD0965D52DA4723EA3EE069F8739A53ABD4C513E1FCF886E3C2A707D1B728FD43896DE719"
+          "storeFile": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.p12",
+          "storePassword": "0000001AB2EB9974315DF6EE3A66E69CF15986B04E42620FF9CF3400958896CB21C340990F88D6EF52B3"
         }
       }
     ],
+
     "products": [
       {
         "name": "default",
@@ -26,12 +28,13 @@
     ],
     "buildModeSet": [
       {
-        "name": "debug",
+        "name": "debug"
       },
       {
         "name": "release"
       }
-    ]
+    ],
+
   },
   "modules": [
     {
