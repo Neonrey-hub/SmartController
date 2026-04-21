@@ -213,8 +213,8 @@ class WebSocket_connect {
   async check_connect(): Promise<boolean> {
       for (let index = 0; index <4 ; index++) {
         if (!this.ws) {
+          this.connect()
           console.log("debug debug 重连",index+1)
-          await this.connect
         }else {
           return true
         }
