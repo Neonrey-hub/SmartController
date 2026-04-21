@@ -1,20 +1,40 @@
 {
   "app": {
 //signingConfigs签名文件，使用时请删掉"signingConfigs"并改成自己的文件
+
     "signingConfigs": [
-      {
-        "name": "default",
-        "material": {
-          "certpath": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.cer",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000001AF10AD9671D8BB1400C8A3F2A5F2EA25894474A3294A0BB8F5309498A3C693B582FE3A41EF52F",
-          "profile": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.p12",
-          "storePassword": "0000001AB2EB9974315DF6EE3A66E69CF15986B04E42620FF9CF3400958896CB21C340990F88D6EF52B3"
-        }
-      }
-    ],
+            {
+              "name": "default",
+              "material": {
+                "certpath": "C:/Users/None.cer",
+                "keyAlias": "debugKey",
+                "keyPassword": "000000",
+                "profile": "C:/Users/None.p7b",
+                "signAlg": "SHA256withECDSA",
+                "storeFile": "C:/Users/None.p12",
+                "storePassword": "000000"
+              }
+            }
+          ],
+
+
+    //提交示例签名文件
+//    "signingConfigs": [
+//      {
+//        "name": "default",
+//        "material": {
+//          "certpath": "C:/Users/None.cer",
+//          "keyAlias": "debugKey",
+//          "keyPassword": "000000",
+//          "profile": "C:/Users/None.p7b",
+//          "signAlg": "SHA256withECDSA",
+//          "storeFile": "C:/Users/None.p12",
+//          "storePassword": "000000"
+//        }
+//      }
+//    ],
+//
+
 
     "products": [
       {
