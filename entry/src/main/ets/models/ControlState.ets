@@ -43,6 +43,14 @@ export class ControlState {
   /** 风扇转速值 (0-100) */
   fanSpeed: number = 53;
 
+  // ---- 执行器联动占用相关字段 ----
+  /** 激活的执行器数量 */
+  actuatorActive: number = 0;
+  /** 执行器总数 */
+  actuatorTotal: number = 4;
+  /** 联动占比 (0-100) */
+  linkageRatio: number = 0;
+
   constructor() {
     this.controlMode = ControlMode.SCENE;
     this.selectedButton = ButtonType.DISPLAY;
@@ -52,5 +60,8 @@ export class ControlState {
     this.redLightEnabled = false;
     this.smallLightBrightness = 51;
     this.fanSpeed = 53;
+    this.actuatorActive = 0;
+    this.actuatorTotal = 4;
+    this.linkageRatio = 0;
   }
 }

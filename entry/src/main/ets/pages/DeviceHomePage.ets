@@ -1,5 +1,6 @@
 import { DeviceInfoCard } from '../components/device/DeviceInfoCard'
 import { ControlConsole } from '../components/control/ControlConsole'
+import { ActuatorOccupancy } from '../components/actuator/ActuatorOccupancy'
 import { DateUtils } from '../utils/DateUtils'
 import { network_connect } from "ets/pages/network_connect";
 /**
@@ -51,6 +52,9 @@ export struct DeviceHomePage {
                 console.log('控制台状态变化:', state);
               }
             })
+
+            // 执行器联动占用
+            ActuatorOccupancy()
           }
           .width('100%')
           .padding({ left: 16, right: 16, top: 16, bottom: 32 })
