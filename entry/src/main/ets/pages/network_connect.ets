@@ -55,7 +55,6 @@ class WebSocket_connect {
    * 获取设备 MAC（随机化地址）和 UUID，异步处理
    */
   constructor(){
-    this.ws = webSocket.createWebSocket();
     this.connect()
     this.send("你好")
   }
@@ -81,9 +80,12 @@ class WebSocket_connect {
       // 1. 先获取设备信息
       await this.getDeviceInfo();
 
+      if(!this.ws){
+        this.ws = webSocket.createWebSocket();
+      }
       // 2. 创建 WebSocket 并绑定事件
       // 3. 发起连接，传入正确的 header 值
-      this.ws!.connect(this.url, {
+      this.ws.connect(this.url, {
         header: {
           // "Authorization": "Bearer 9e12a5d9d8f34d28a2c20919b9496770",
           "Protocol-Version": "1",
@@ -212,14 +214,12 @@ class WebSocket_connect {
   }
 
   async check_connect(): Promise<boolean> {
-      for (let index = 0; index <4 ; index++) {
         if (!this.ws) {
           this.connect()
-          console.log("debug debug 重连",index+1)
+          console.log("debug debug 重连")
         }else {
           return true
         }
-      }
       return false
   }
 
