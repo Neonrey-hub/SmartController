@@ -4,6 +4,7 @@ import { AppDimensions } from '../../constants/AppDimensions'
 import { ControlButtons } from './ControlButtons'
 import { StatusIndicator } from './StatusIndicator'
 import { ControlSlider } from './ControlSlider'
+import { network_connect } from "ets/pages/network_connect";
 
 /**
  * 设备联动控制台主容器组件
@@ -51,6 +52,12 @@ export struct ControlConsole {
           isEnabled: this.controlState.buzzerEnabled,
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
+            if (enabled) {
+              network_connect.send("打开蜂鸣器")
+            }else {
+              network_connect.send("关闭蜂鸣器")
+            }
+            console.log("debug debug 打开蜂鸣器",String(enabled))
             this.controlState.buzzerEnabled = enabled;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
@@ -62,6 +69,11 @@ export struct ControlConsole {
           isEnabled: this.controlState.greenLightEnabled,
           color: AppColors.SUCCESS,
           onToggle: (enabled: boolean) => {
+            if (enabled) {
+              network_connect.send("打开绿灯")
+            }else {
+              network_connect.send("关闭绿灯")
+            }
             this.controlState.greenLightEnabled = enabled;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
@@ -77,6 +89,11 @@ export struct ControlConsole {
           isEnabled: this.controlState.yellowLightEnabled,
           color: AppColors.WARNING,
           onToggle: (enabled: boolean) => {
+            if (enabled) {
+              network_connect.send("打开黄灯")
+            }else {
+              network_connect.send("关闭黄灯")
+            }
             this.controlState.yellowLightEnabled = enabled;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
@@ -88,6 +105,11 @@ export struct ControlConsole {
           isEnabled: this.controlState.redLightEnabled,
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
+            if (enabled) {
+              network_connect.send("打开红灯")
+            }else {
+              network_connect.send("关闭红灯")
+            }
             this.controlState.redLightEnabled = enabled;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);

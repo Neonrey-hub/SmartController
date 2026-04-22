@@ -1,6 +1,41 @@
 {
   "app": {
-    "signingConfigs": [],
+//signingConfigs签名文件，使用时请删掉"signingConfigs"并改成自己的文件
+
+    "signingConfigs": [
+            {
+              "name": "default",
+              "material": {
+                "certpath": "C:/Users/None.cer",
+                "keyAlias": "debugKey",
+                "keyPassword": "000000",
+                "profile": "C:/Users/None.p7b",
+                "signAlg": "SHA256withECDSA",
+                "storeFile": "C:/Users/None.p12",
+                "storePassword": "000000"
+              }
+            }
+          ],
+
+
+    //提交示例签名文件
+//    "signingConfigs": [
+//      {
+//        "name": "default",
+//        "material": {
+//          "certpath": "C:/Users/None.cer",
+//          "keyAlias": "debugKey",
+//          "keyPassword": "000000",
+//          "profile": "C:/Users/None.p7b",
+//          "signAlg": "SHA256withECDSA",
+//          "storeFile": "C:/Users/None.p12",
+//          "storePassword": "000000"
+//        }
+//      }
+//    ],
+//
+
+
     "products": [
       {
         "name": "default",
@@ -13,12 +48,13 @@
     ],
     "buildModeSet": [
       {
-        "name": "debug",
+        "name": "debug"
       },
       {
         "name": "release"
       }
-    ]
+    ],
+
   },
   "modules": [
     {
