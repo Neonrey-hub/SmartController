@@ -2,8 +2,6 @@ import { webSocket } from '@kit.NetworkKit';
 import { BusinessError } from '@ohos.base';
 import wifiManager from '@ohos.wifiManager';
 import { util } from '@kit.ArkTS';
-// import { AlertDialog } from '@kit.ArkUI';
-// import { audioPlayer } from './media'; // 路径按你的项目修改
 
 interface websocketmessage{
   "type": string,
@@ -28,7 +26,6 @@ interface AudioParams {
   frame_duration: number;
 }
 
-
 // features子接口
 interface Features {
   mcp: boolean;
@@ -50,13 +47,78 @@ class WebSocket_connect {
   // 缓存的设备标识，在 connect 时获取并存储
   private deviceMac: string = '';
   private clientUuid: string = '';
+  // 是否正在重连中，防止并发多次重连
+  private isReconnecting: boolean = false;
+  // 是否已注册 WiFi 监听
+  private wifiListenerRegistered: boolean = false;
 
   /**
    * 获取设备 MAC（随机化地址）和 UUID，异步处理
    */
   constructor(){
     this.connect()
+    this.registerWifiListener()
     this.send("你好")
+  }
+
+  /**
+   * 注册 WiFi 连接状态监听
+   * 当 WiFi 从断开恢复为已连接时，触发自动重连
+   */
+  private registerWifiListener(): void {
+    if (this.wifiListenerRegistered) return;
+    try {
+      wifiManager.on('wifiConnectionChange', (state: number) => {
+        // state: 0=断开, 1=已连接
+        console.info(`WiFi 状态变更: ${state}`);
+        if (state === 1) {
+          console.info('✅ WiFi 已重连，准备重建 WebSocket 连接');
+          // 延迟 1.5s 等待网络路由稳定后再重连
+          setTimeout(() => {
+            this.reconnect();
+          }, 1500);
+        } else if (state === 0) {
+          console.info('🔌 WiFi 已断开，标记设备离线');
+          this.state = false;
+        }
+      });
+      this.wifiListenerRegistered = true;
+      console.info('WiFi 状态监听已注册');
+    } catch (e) {
+      console.error('注册 WiFi 监听失败:', JSON.stringify(e));
+    }
+  }
+
+  /**
+   * 断开现有连接并重新建立
+   * 带 isReconnecting 锁，防止短时间内并发触发多次重连
+   */
+  async reconnect(): Promise<void> {
+    if (this.isReconnecting) {
+      console.log('重连中，跳过重复请求');
+      return;
+    }
+    this.isReconnecting = true;
+    console.info('🔄 开始重连...');
+
+    // 清理旧连接
+    if (this.ws) {
+      try {
+        this.ws.close({ code: 1000, reason: 'reconnect' });
+      } catch (e) {
+        // 关闭失败不影响重连
+      }
+      this.ws = null;
+    }
+    this.state = false;
+
+    try {
+      await this.connect();
+    } catch (e) {
+      console.error('重连失败:', JSON.stringify(e));
+    } finally {
+      this.isReconnecting = false;
+    }
   }
 
   private async getDeviceInfo(): Promise<void> {
@@ -162,11 +224,15 @@ class WebSocket_connect {
       console.info('📩 收到服务端消息:', messageStr);
 
     });
+
     this.ws.on('close', (err, result) => {
+      // 无论是否异常关闭，都标记为离线
+      this.state = false;
+      this.ws = null;
+
       if (err) {
-        console.error('关闭错误:', JSON.stringify(err));
+        console.error('🔌 WebSocket 异常断开:', JSON.stringify(err));
       } else {
-        this.state = false
         console.info(`🔌 关闭 code=${result.code} reason=${result.reason}`);
       }
 
@@ -174,7 +240,6 @@ class WebSocket_connect {
         pending.reject(new Error('WebSocket连接已关闭'));
       });
       this.pendingRequests.clear();
-      this.ws = null;
     });
 
     this.ws.on('error', (err) => {
@@ -214,17 +279,26 @@ class WebSocket_connect {
   }
 
   async check_connect(): Promise<boolean> {
-        if (!this.ws) {
-          this.connect()
-          console.log("debug debug 重连")
-        }else {
-          return true
-        }
-      return false
+      if (!this.ws) {
+        this.connect()
+        console.log("debug debug 重连")
+      }else {
+        return true
+      }
+    return false
   }
 
   close() {
     this.state = false
+    // 注销 WiFi 监听
+    if (this.wifiListenerRegistered) {
+      try {
+        wifiManager.off('wifiConnectionChange');
+        this.wifiListenerRegistered = false;
+      } catch (e) {
+        console.error('注销 WiFi 监听失败:', JSON.stringify(e));
+      }
+    }
     if (!this.ws) return;
     this.ws.close({ code: 1000, reason: 'userClose' }, (err) => {
       if (err) console.error('关闭失败:', JSON.stringify(err));

@@ -12,8 +12,6 @@ import { network_connect } from "ets/pages/network_connect";
 export struct DeviceHomePage {
   /** 设备名称 */
   @Local deviceName: string = '设备名称';
-  /** 是否在线 */
-  @Local isOnline: boolean = network_connect.state;
   /** 更新时间 */
   @Local updateTime: string = '';
   /** 事件日志列表 */
@@ -29,6 +27,8 @@ export struct DeviceHomePage {
   aboutToAppear() {
     // 初始化更新时间
     this.updateTime = DateUtils.getCurrentDateTime();
+    // 每次进入页面主动检测一次连接状态，WiFi 断开后重连场景下可快速恢复
+    network_connect.reconnect();
   }
 
   build() {
@@ -53,7 +53,7 @@ export struct DeviceHomePage {
             // 设备信息卡片
             DeviceInfoCard({
               deviceName: this.deviceName,
-              isOnline: this.isOnline,
+              isOnline: network_connect.state,
               updateTime: this.updateTime
             })
 
