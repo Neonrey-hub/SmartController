@@ -1,6 +1,8 @@
 import { DeviceInfoCard } from '../components/device/DeviceInfoCard'
 import { ControlConsole } from '../components/control/ControlConsole'
 import { ActuatorOccupancy } from '../components/actuator/ActuatorOccupancy'
+import { EventLog, EventLogItem } from '../components/log/EventLog'
+import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 import { DateUtils } from '../utils/DateUtils'
 import { network_connect } from "ets/pages/network_connect";
 /**
@@ -14,6 +16,15 @@ export struct DeviceHomePage {
   @Local isOnline: boolean = network_connect.state;
   /** 更新时间 */
   @Local updateTime: string = '';
+  /** 事件日志列表 */
+  @Local logItems: EventLogItem[] = [
+    { time: '22:48:55', message: 'DataV 大屏已更新' }
+  ];
+  /** 告警队列列表 */
+  @Local alarmItems: AlarmItem[] = [
+    { id: '1', message: '温度 越界 31.88 ℃', level: AlarmLevel.CRITICAL },
+    { id: '2', message: '甲醇 过高 0.26 mg/m³', level: AlarmLevel.CRITICAL }
+  ];
 
   aboutToAppear() {
     // 初始化更新时间
@@ -55,6 +66,12 @@ export struct DeviceHomePage {
 
             // 执行器联动占用
             ActuatorOccupancy()
+
+            // 工业事件日志
+            EventLog({ logItems: this.logItems })
+
+            // 工业告警队列
+            AlarmQueue({ alarmItems: this.alarmItems })
           }
           .width('100%')
           .padding({ left: 16, right: 16, top: 16, bottom: 32 })

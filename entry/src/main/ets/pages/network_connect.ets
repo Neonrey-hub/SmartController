@@ -140,7 +140,7 @@ class WebSocket_connect {
       }
       const messageStr = typeof data === 'string'
         ? data
-        : new util.TextDecoder().decode(new Uint8Array(data));
+        : new util.TextDecoder('utf-8').decodeWithStream(new Uint8Array(data as ArrayBuffer));
 
       try {
         let mes = JSON.parse(messageStr) as websocketmessage
