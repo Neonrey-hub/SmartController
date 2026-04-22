@@ -38,7 +38,9 @@ interface Features {
 @ObservedV2
 class WebSocket_connect {
   private ws: webSocket.WebSocket | null = null;
-  @Trace ip:string = "192.168.5.8:8000";
+  /*公网测试地址*/
+  @Trace ip:string = "119.29.15.120:8000"
+  //@Trace ip:string = "192.168.5.8:8000";
   @Trace str_arr:Array<string> = []
   @Trace state:boolean = false
   private session_id : String = '';
@@ -80,7 +82,6 @@ class WebSocket_connect {
       await this.getDeviceInfo();
 
       // 2. 创建 WebSocket 并绑定事件
-
       // 3. 发起连接，传入正确的 header 值
       this.ws!.connect(this.url, {
         header: {
