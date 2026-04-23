@@ -39,6 +39,8 @@ export struct ChatPage {
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
 
         // 对话内容区
+
+
         // Scroll(this.scroller) {
         //   Column() {
         //     ForEach(this.messages, (message: ChatMessage) => {
@@ -66,12 +68,14 @@ export struct ChatPage {
                     .fontColor(Color.White)
                     .fontSize(20)
                     .width('100%')
+                    .backgroundColor("#ffd6d6d6")
                 }else if (item[1] == "1") {
                   Text(item[0])
                     .textAlign(TextAlign.Start)
                     .fontColor(Color.White)
                     .fontSize(20)
                     .width('100%')
+                    .backgroundColor("#ffd6d6d6")
                 }
               }
             })
