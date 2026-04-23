@@ -1,4 +1,6 @@
 import { TrendChartCard } from './TrendChartCard'
+import { IndustrialSensorCard, SensorItem } from '../components/sensor/IndustrialSensorCard'
+import { EdgeDataQuality } from '../components/sensor/EdgeDataQuality'
 
 /**
  * 数据 Tab 主页：承载「数据」导航目标页，内含可滚动内容区（后续可替换为图表、卡片等）。
@@ -7,6 +9,10 @@ import { TrendChartCard } from './TrendChartCard'
 export struct DataHomePage {
   /** 当前舒适指数，用于仪表数值展示 */
   private readonly comfortScore: number = 45
+  /** 十合一传感器示例数据 */
+  private readonly sensorItems: SensorItem[] = [
+    { name: '二氧化碳', value: '1055.55', unit: 'ppm' }
+  ]
 
   build() {
     // 导航子页：与 Navigation + NavPathStack 配合，负责标题与返回栈
@@ -77,6 +83,19 @@ export struct DataHomePage {
 
             // 趋势图卡片：位于圆环模块下方
             TrendChartCard()
+
+            // 传感器与数据质量并排卡片
+            Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Stretch }) {
+              IndustrialSensorCard({ sensorItems: this.sensorItems })
+                .layoutWeight(1)
+                .margin({ right: 6 })
+
+              EdgeDataQuality({ abnormalCount: 7 })
+                .layoutWeight(1)
+                .margin({ left: 6 })
+            }
+            .width('100%')
+            .margin({ top: 12 })
           }
           .width('100%')
           .padding({ left: 16, right: 16, top: 16, bottom: 32 })

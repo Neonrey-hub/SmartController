@@ -202,9 +202,7 @@ class WebSocket_connect {
         console.log("二进制数据")
         return
       }
-      const messageStr = typeof data === 'string'
-        ? data
-        : new util.TextDecoder('utf-8').decodeWithStream(new Uint8Array(data as ArrayBuffer));
+      const messageStr = data as string;
 
       try {
         let mes = JSON.parse(messageStr) as websocketmessage
