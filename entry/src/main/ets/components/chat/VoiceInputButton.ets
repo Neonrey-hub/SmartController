@@ -113,7 +113,7 @@ export struct VoiceInputButton {
         .fontColor(Color.White)
     }
     .width('60%')
-    .height(56)
+    .height(46)
     .backgroundColor(this.buttonColor)
     .borderRadius(28)
     .justifyContent(FlexAlign.Center)
@@ -128,14 +128,12 @@ export struct VoiceInputButton {
       this.toggleRecording()
       if (this.recognizedText.length != 0) {
         network_connect.send(this.recognizedText)
-
-      }
-      if (this.isRecording) {
-        this.buttonColor = "#FFF6D777"
-
       } else {
-        this.buttonColor = "#3e3e3e"
-
+        promptAction.showToast({
+          message: "消息内容不能为空",
+          duration: 2000,
+          bottom:200
+        })
       }
 
     }
