@@ -2,18 +2,20 @@ import { ChatMessage } from '../models/ChatMessage'
 import { ChatMessageBubble } from '../components/chat/ChatMessageBubble'
 import { VoiceInputButton } from '../components/chat/VoiceInputButton'
 import { DateUtils } from '../utils/DateUtils'
+import { network_connect , WebSocket_connect} from "ets/pages/network_connect";
 
 /**
  * 对话页面：承载语音交互对话功能
  */
-@Component
+@ComponentV2
 export struct ChatPage {
+  @Local network_connect: WebSocket_connect = network_connect;
   /** 对话消息列表 */
-  @State messages: ChatMessage[] = [
+   @Local  messages: ChatMessage[] = [
     { id: '1', type: 'system', content: '你好，我是智能助手', timestamp: DateUtils.getCurrentDateTime() }
   ]
   /** 是否正在录音 */
-  @State isRecording: boolean = false
+  @Local isRecording: boolean = false
   private scroller: Scroller = new Scroller()
 
   build() {
@@ -37,14 +39,42 @@ export struct ChatPage {
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
 
         // 对话内容区
-        Scroll(this.scroller) {
-          Column() {
-            ForEach(this.messages, (message: ChatMessage) => {
-              ChatMessageBubble({ message: message })
-            }, (message: ChatMessage) => message.id)
-          }
-          .width('100%')
-          .padding({ top: 16, bottom: 80 })
+        // Scroll(this.scroller) {
+        //   Column() {
+        //     ForEach(this.messages, (message: ChatMessage) => {
+        //       ChatMessageBubble({ message: message })
+        //     }, (message: ChatMessage) => message.id)
+        //   }
+        //   .width('100%')
+        //   .padding({ top: 16, bottom: 80 })
+        // }
+        // .layoutWeight(1)
+        // .width('100%')
+        // .scrollBar(BarState.Auto)
+        // .edgeEffect(EdgeEffect.Spring)
+        // .backgroundColor('#0e1626')
+        List(){
+          ForEach(network_connect.str_arr,
+            (item:string[],key:number)=>{
+              /**
+               * [["你好","0"]，["1111","1"]] 0代表用户发送 1代表服务器发送
+               */
+              ListItem(){
+                if (item[1] == "0") {
+                  Text(item[0])
+                    .textAlign(TextAlign.End)
+                    .fontColor(Color.White)
+                    .fontSize(20)
+                    .width('100%')
+                }else if (item[1] == "1") {
+                  Text(item[0])
+                    .textAlign(TextAlign.Start)
+                    .fontColor(Color.White)
+                    .fontSize(20)
+                    .width('100%')
+                }
+              }
+            })
         }
         .layoutWeight(1)
         .width('100%')
@@ -52,7 +82,7 @@ export struct ChatPage {
         .edgeEffect(EdgeEffect.Spring)
         .backgroundColor('#0e1626')
 
-        // 底部操作区
+        //底部操作区
         Column() {
           VoiceInputButton()
         }

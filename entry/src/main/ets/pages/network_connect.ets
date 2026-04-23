@@ -33,12 +33,15 @@ interface Features {
 
 
 @ObservedV2
-class WebSocket_connect {
+export class WebSocket_connect {
   private ws: webSocket.WebSocket | null = null;
   /*公网测试地址*/
   @Trace ip:string = "119.29.15.120:8000"
   //@Trace ip:string = "192.168.5.8:8000";
-  @Trace str_arr:Array<string> = []
+  @Trace str_arr:string[][] = []
+  /**
+   * [["你好","0"]，["1111","1"]] 0代表用户发送 1代表服务器发送
+   */
   @Trace state:boolean = false
   private session_id : String = '';
   private url: string = `ws://${this.ip}/xiaozhi/v1/`;
@@ -212,7 +215,7 @@ class WebSocket_connect {
         }
         if (mes.type == "tts" && mes.text !== undefined) {
           console.log(mes.text)
-          this.str_arr.push(mes.text)
+          this.str_arr.push([mes.text,"1"])
         }else if (mes.type == "hello") {
 
         }
@@ -250,6 +253,7 @@ class WebSocket_connect {
       if (!(await this.check_connect())) {
         return
       }
+      this.str_arr.push([data,"0"])
       data = `{
               "type": "listen",
               "state": "detect",
@@ -277,12 +281,12 @@ class WebSocket_connect {
   }
 
   async check_connect(): Promise<boolean> {
-      if (!this.ws) {
-        this.connect()
-        console.log("debug debug 重连")
-      }else {
-        return true
-      }
+    if (!this.ws) {
+      this.connect()
+      console.log("debug debug 重连")
+    }else {
+      return true
+    }
     return false
   }
 
