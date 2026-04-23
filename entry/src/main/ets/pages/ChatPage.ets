@@ -68,14 +68,14 @@ export struct ChatPage {
                     .fontColor(Color.White)
                     .fontSize(20)
                     .width('100%')
-                    .backgroundColor("#ffd6d6d6")
+
                 }else if (item[1] == "1") {
                   Text(item[0])
                     .textAlign(TextAlign.Start)
                     .fontColor(Color.White)
                     .fontSize(20)
                     .width('100%')
-                    .backgroundColor("#ffd6d6d6")
+
                 }
               }
             })

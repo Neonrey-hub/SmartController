@@ -3,6 +3,9 @@ import common from '@ohos.app.ability.common';
 import { PermissionManager } from '../../managers/PermissionManager';
 import { AudioCaptureManager } from '../../managers/AudioCaptureManager';
 import { AsrWebSocketManager } from '../../managers/AsrWebSocketManager';
+import { network_connect } from "ets/pages/network_connect";
+
+
 /**
  * 语音输入按钮组件
  * 当前为点击提示模式，语音识别功能接入后可恢复长按识别交互
@@ -13,16 +16,15 @@ import { AsrWebSocketManager } from '../../managers/AsrWebSocketManager';
  *   3. 在 onActionEnd 中调用 VoiceRecognizer.stopRecognition()
  *   4. 通过 onRecordStart / onRecordEnd 回调通知父组件
  */
-@Component
+@ComponentV2
 export struct VoiceInputButton {
   /** 按钮点击回调 —— 语音识别接入后可替换为 onRecordStart / onRecordEnd */
   onButtonClick?: () => void
-
-
-  @State recognizedText: string = '';
-  @State isRecording: boolean = false;
-  @State statusText: string = '点击开始识别';
-  @State permissionGranted: boolean = false;
+  @Local recognizedText: string = '';
+  @Local isRecording: boolean = false;
+  @Local statusText: string = '点击开始识别';
+  @Local permissionGranted: boolean = false;
+  @Local buttonColor: string = "#3e3e3e"
   private context = getContext(this) as common.UIAbilityContext;
   private audioManager: AudioCaptureManager = new AudioCaptureManager();
   private asrManager: AsrWebSocketManager = new AsrWebSocketManager();
@@ -72,7 +74,9 @@ export struct VoiceInputButton {
     console.log("clickSuccess")
     if (!this.permissionGranted) {
       this.permissionGranted = await PermissionManager.checkAndRequestPermissions(this.context);
-      if (!this.permissionGranted) return;
+      if (!this.permissionGranted) {
+        return;
+      }
     }
     if (this.isRecording) {
       console.log("stop")
@@ -110,7 +114,7 @@ export struct VoiceInputButton {
     }
     .width('60%')
     .height(56)
-    .backgroundColor('#333333')
+    .backgroundColor(this.buttonColor)
     .borderRadius(28)
     .justifyContent(FlexAlign.Center)
     .alignItems(VerticalAlign.Center)
@@ -120,12 +124,23 @@ export struct VoiceInputButton {
       offsetX: 0,
       offsetY: 4
     })
-    .onClick(() => this.toggleRecording()
+    .onClick(() => {
+      this.toggleRecording()
+      if (this.recognizedText.length != 0) {
+        network_connect.send(this.recognizedText)
+
+      }
+      if (this.isRecording) {
+        this.buttonColor = "#FFF6D777"
+
+      } else {
+        this.buttonColor = "#3e3e3e"
+
+      }
+
+    }
 
     )
 
-
-
-}
-
+  }
 }
