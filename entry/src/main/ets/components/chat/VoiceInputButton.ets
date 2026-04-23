@@ -1,4 +1,10 @@
 import { promptAction } from '@kit.ArkUI'
+import common from '@ohos.app.ability.common';
+import { PermissionManager } from '../../managers/PermissionManager';
+import { AudioCaptureManager } from '../../managers/AudioCaptureManager';
+import { AsrWebSocketManager } from '../../managers/AsrWebSocketManager';
+import { network_connect } from "ets/pages/network_connect";
+
 
 /**
  * 语音输入按钮组件
@@ -10,10 +16,94 @@ import { promptAction } from '@kit.ArkUI'
  *   3. 在 onActionEnd 中调用 VoiceRecognizer.stopRecognition()
  *   4. 通过 onRecordStart / onRecordEnd 回调通知父组件
  */
-@Component
+@ComponentV2
 export struct VoiceInputButton {
   /** 按钮点击回调 —— 语音识别接入后可替换为 onRecordStart / onRecordEnd */
   onButtonClick?: () => void
+  @Local recognizedText: string = '';
+  @Local isRecording: boolean = false;
+  @Local statusText: string = '点击开始识别';
+  @Local permissionGranted: boolean = false;
+  @Local buttonColor: string = "#3e3e3e"
+  private context = getContext(this) as common.UIAbilityContext;
+  private audioManager: AudioCaptureManager = new AudioCaptureManager();
+  private asrManager: AsrWebSocketManager = new AsrWebSocketManager();
+
+  async aboutToAppear(): Promise<void> {
+    this.permissionGranted = await PermissionManager.checkAndRequestPermissions(this.context);
+    if (!this.permissionGranted) {
+      this.statusText = '缺少必要权限';
+      return;
+    }
+    await this.audioManager.init();
+    this.setupAsrCallbacks();
+  }
+
+  aboutToDisappear(): void {
+    this.audioManager.release();
+    this.asrManager.disconnect();
+  }
+
+  setupAsrCallbacks(): void {
+    this.asrManager.setCallbacks({
+      onOpen: () => {
+        this.statusText = '连接成功，请说话...';
+        this.isRecording = true;
+      },
+      onResult: (text: string, isFinal: boolean) => {
+        this.recognizedText = text;
+        if (isFinal) {
+          this.statusText = '识别完成';
+          this.isRecording = false;
+          this.audioManager.stop();
+        }
+      },
+      onError: (error: Error) => {
+        this.statusText = `识别出错: ${error.message}`;
+        this.isRecording = false;
+        this.audioManager.stop();
+      },
+      onClose: () => {
+        this.statusText = '连接已关闭';
+        this.isRecording = false;
+      }
+    });
+  }
+
+  async toggleRecording(): Promise<void> {
+    console.log("clickSuccess")
+    if (!this.permissionGranted) {
+      this.permissionGranted = await PermissionManager.checkAndRequestPermissions(this.context);
+      if (!this.permissionGranted) {
+        return;
+      }
+    }
+    if (this.isRecording) {
+      console.log("stop")
+      this.stopRecording();
+    } else {
+      this.startRecording();
+    }
+  }
+
+  async startRecording(): Promise<void> {
+    try {
+      this.recognizedText = '';
+      await this.asrManager.connect();
+      this.audioManager.start((audioData: ArrayBuffer) => {
+        this.asrManager.sendAudio(audioData);
+      });
+    } catch (err) {
+      this.statusText = `连接失败: ${JSON.stringify(err)}`;
+    }
+  }
+
+  stopRecording(): void {
+    this.asrManager.sendEnd();
+    this.audioManager.stop();
+    this.isRecording = false;
+    this.statusText = '正在结束识别...';
+  }
 
   build() {
     Row() {
@@ -23,8 +113,8 @@ export struct VoiceInputButton {
         .fontColor(Color.White)
     }
     .width('60%')
-    .height(56)
-    .backgroundColor('#333333')
+    .height(46)
+    .backgroundColor(this.buttonColor)
     .borderRadius(28)
     .justifyContent(FlexAlign.Center)
     .alignItems(VerticalAlign.Center)
@@ -35,14 +125,20 @@ export struct VoiceInputButton {
       offsetY: 4
     })
     .onClick(() => {
-      // 当前为占位提示，语音识别接入后替换为识别逻辑
-      promptAction.showToast({
-        message: '语音识别功能开发中，敬请期待',
-        duration: 2000
-      })
-      if (this.onButtonClick) {
-        this.onButtonClick()
+      this.toggleRecording()
+      if (this.recognizedText.length != 0) {
+        network_connect.send(this.recognizedText)
+      } else {
+        promptAction.showToast({
+          message: "消息内容不能为空",
+          duration: 2000,
+          bottom:200
+        })
       }
-    })
+
+    }
+
+    )
+
   }
 }

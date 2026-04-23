@@ -38,11 +38,11 @@ struct Index {
     }
     this.pageStack.clear()
     if (tabId === 'chat') {
-      this.pageStack.pushPathByName('ChatPage', '')
+      this.pageStack.replacePathByName('ChatPage', '')
     } else if (tabId === 'data') {
-      this.pageStack.pushPathByName('DataPage', '')
+      this.pageStack.replacePathByName('DataPage', '')
     } else if (tabId === 'device') {
-      this.pageStack.pushPathByName('DevicePage', '')
+      this.pageStack.replacePathByName('DevicePage', '')
     }
     this.selectedTabId = tabId
   }
