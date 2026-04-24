@@ -3,6 +3,8 @@ import { ChatMessageBubble } from '../components/chat/ChatMessageBubble'
 import { VoiceInputButton } from '../components/chat/VoiceInputButton'
 import { DateUtils } from '../utils/DateUtils'
 import { network_connect , WebSocket_connect} from "ets/pages/network_connect";
+import { promptAction } from '@kit.ArkUI'
+import { ExitConfirmManager } from '../common/Constants'
 
 /**
  * 对话页面：承载语音交互对话功能
@@ -102,6 +104,20 @@ export struct ChatPage {
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     }
     .hideTitleBar(true)
+    .onBackPressed(() => {
+      // 调用全局退出确认管理器
+      if (ExitConfirmManager.handleBackPress()) {
+        // 拦截返回，显示提示
+        promptAction.showToast({
+          message: '再按一次退出应用',
+          duration: 2000,
+          bottom:500
+
+        })
+        return true  // 拦截
+      }
+      return false  // 允许退出
+    })
   }
 
   /**

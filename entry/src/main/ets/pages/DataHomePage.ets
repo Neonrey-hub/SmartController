@@ -1,6 +1,8 @@
 import { TrendChartCard } from './TrendChartCard'
 import { IndustrialSensorCard, SensorItem } from '../components/sensor/IndustrialSensorCard'
 import { EdgeDataQuality } from '../components/sensor/EdgeDataQuality'
+import { promptAction } from '@kit.ArkUI'
+import { ExitConfirmManager } from '../common/Constants'
 
 /**
  * 数据 Tab 主页：承载「数据」导航目标页，内含可滚动内容区（后续可替换为图表、卡片等）。
@@ -115,5 +117,18 @@ export struct DataHomePage {
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     }
     .hideTitleBar(true)
+    .onBackPressed(() => {
+      // 调用全局退出确认管理器
+      if (ExitConfirmManager.handleBackPress()) {
+        // 拦截返回，显示提示
+        promptAction.showToast({
+          message: '再按一次退出应用',
+          duration: 2000,
+          bottom:500
+        })
+        return true  // 拦截
+      }
+      return false  // 允许退出
+    })
   }
 }

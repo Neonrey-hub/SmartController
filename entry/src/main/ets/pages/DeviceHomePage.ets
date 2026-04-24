@@ -5,6 +5,8 @@ import { EventLog, EventLogItem } from '../components/log/EventLog'
 import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 import { DateUtils } from '../utils/DateUtils'
 import { network_connect } from "ets/pages/network_connect";
+import { promptAction } from '@kit.ArkUI'
+import { ExitConfirmManager } from '../common/Constants'
 /**
  * 设备 Tab 主页：承载「设备」导航目标页，用于设备列表、控制面板等
  */
@@ -89,5 +91,19 @@ export struct DeviceHomePage {
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     }
     .hideTitleBar(true)
+    .onBackPressed(() => {
+      // 调用全局退出确认管理器
+      if (ExitConfirmManager.handleBackPress()) {
+        // 拦截返回，显示提示
+        promptAction.showToast({
+          message: '再按一次退出应用',
+          duration: 2000,
+          bottom:500
+
+        })
+        return true  // 拦截
+      }
+      return false  // 允许退出
+    })
   }
 }

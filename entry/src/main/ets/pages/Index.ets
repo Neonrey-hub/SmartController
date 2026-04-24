@@ -31,12 +31,12 @@ struct Index {
     }
   }
 
-  /** 底栏切换：清空栈后压入对应子页，保证标题与内容与 Tab 一致 */
+  /** 底栏切换：替换当前页，保持栈深度为1 */
   private switchBottomTab(tabId: string): void {
     if (this.selectedTabId === tabId) {
       return
     }
-    this.pageStack.clear()
+    // 替换当前页，不清空栈
     if (tabId === 'chat') {
       this.pageStack.replacePathByName('ChatPage', '')
     } else if (tabId === 'data') {
