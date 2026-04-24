@@ -253,6 +253,9 @@ export class WebSocket_connect {
       if (!(await this.check_connect())) {
         return
       }
+      if (data.length == 0) {
+        return
+      }
       this.str_arr.push([data,"0"])
       data = `{
               "type": "listen",

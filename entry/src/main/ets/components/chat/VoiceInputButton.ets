@@ -126,15 +126,16 @@ export struct VoiceInputButton {
     })
     .onClick(() => {
       this.toggleRecording()
-      if (this.recognizedText.length != 0) {
-        network_connect.send(this.recognizedText)
-      } else {
-        promptAction.showToast({
-          message: "消息内容不能为空",
-          duration: 2000,
-          bottom:200
-        })
-      }
+      network_connect.send(this.recognizedText)
+      // if (this.recognizedText.length != 0) {
+
+      // } else {
+      //   promptAction.showToast({
+      //     message: "消息内容不能为空",
+      //     duration: 2000,
+      //     bottom:200
+      //   })
+      // }
 
     }
 
