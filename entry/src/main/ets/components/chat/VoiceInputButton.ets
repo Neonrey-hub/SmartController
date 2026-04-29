@@ -1,40 +1,23 @@
-import { promptAction } from '@kit.ArkUI'
-import common from '@ohos.app.ability.common';
+// entry/src/main/ets/components/chat/VoiceInputButton.ets
 import { PermissionManager } from '../../managers/PermissionManager';
 import { AudioCaptureManager } from '../../managers/AudioCaptureManager';
 import { AsrWebSocketManager } from '../../managers/AsrWebSocketManager';
 import { network_connect } from "ets/pages/network_connect";
+import common from '@ohos.app.ability.common';
 
-
-/**
- * 语音输入按钮组件
- * 当前为点击提示模式，语音识别功能接入后可恢复长按识别交互
- *
- * TODO: 接入语音识别引擎后，可恢复以下功能：
- *   1. 将 onClick 改为 LongPressGesture 长按识别
- *   2. 在 onAction 中调用 VoiceRecognizer.startRecognition()
- *   3. 在 onActionEnd 中调用 VoiceRecognizer.stopRecognition()
- *   4. 通过 onRecordStart / onRecordEnd 回调通知父组件
- */
 @ComponentV2
 export struct VoiceInputButton {
-  /** 按钮点击回调 —— 语音识别接入后可替换为 onRecordStart / onRecordEnd */
-  onButtonClick?: () => void
   @Local recognizedText: string = '';
   @Local isRecording: boolean = false;
   @Local statusText: string = '点击开始识别';
   @Local permissionGranted: boolean = false;
-  @Local buttonColor: string = "#3e3e3e"
   private context = getContext(this) as common.UIAbilityContext;
   private audioManager: AudioCaptureManager = new AudioCaptureManager();
   private asrManager: AsrWebSocketManager = new AsrWebSocketManager();
 
   async aboutToAppear(): Promise<void> {
     this.permissionGranted = await PermissionManager.checkAndRequestPermissions(this.context);
-    if (!this.permissionGranted) {
-      this.statusText = '缺少必要权限';
-      return;
-    }
+    if (!this.permissionGranted) { this.statusText = '缺少必要权限'; return; }
     await this.audioManager.init();
     this.setupAsrCallbacks();
   }
@@ -52,7 +35,13 @@ export struct VoiceInputButton {
       },
       onResult: (text: string, isFinal: boolean) => {
         this.recognizedText = text;
-        if (isFinal) {
+        if (isFinal && text.length > 0) {
+          // 添加用户消息到对话列表（右侧气泡）
+          network_connect.str_arr.push([text, "0"]);
+          // 发送设备控制指令（允许失败）
+          try {
+            network_connect.send(text).catch((e: Error) => console.warn('发送设备指令失败:', e.message));
+          } catch (e) { /* 忽略异常 */ }
           this.statusText = '识别完成';
           this.isRecording = false;
           this.audioManager.stop();
@@ -71,24 +60,18 @@ export struct VoiceInputButton {
   }
 
   async toggleRecording(): Promise<void> {
-    console.log("clickSuccess")
     if (!this.permissionGranted) {
       this.permissionGranted = await PermissionManager.checkAndRequestPermissions(this.context);
-      if (!this.permissionGranted) {
-        return;
-      }
+      if (!this.permissionGranted) return;
     }
-    if (this.isRecording) {
-      console.log("stop")
-      this.stopRecording();
-    } else {
-      this.startRecording();
-    }
+    if (this.isRecording) this.stopRecording();
+    else this.startRecording();
   }
 
   async startRecording(): Promise<void> {
     try {
       this.recognizedText = '';
+      this.statusText = '正在连接...';
       await this.asrManager.connect();
       this.audioManager.start((audioData: ArrayBuffer) => {
         this.asrManager.sendAudio(audioData);
@@ -106,40 +89,37 @@ export struct VoiceInputButton {
   }
 
   build() {
-    Row() {
-      Text('语音输入')
-        .fontSize(16)
-        .fontWeight(FontWeight.Medium)
-        .fontColor(Color.White)
+    Column() {
+      if (this.recognizedText) {
+        Text(this.recognizedText)
+          .fontSize(14).fontColor('#000000').maxLines(2)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .padding(8).backgroundColor('#F0F9FF').borderRadius(8)
+          .constraintSize({ maxWidth: '90%' }).margin({ bottom: 8 })
+      }
+      Text(this.statusText)
+        .fontSize(12).fontColor(this.isRecording ? '#FFD700' : '#8899AA')
+        .margin({ bottom: 6 })
+      Button() {
+        Stack() {
+          if (this.isRecording) {
+            Row({ space: 6 }) {
+              Image($r('app.media.startIcon')).width(20).height(20).fillColor('#FFFFFF')
+              Text('停止').fontSize(14).fontColor('#FFFFFF')
+            }
+          } else {
+            Row({ space: 6 }) {
+              Image($r('app.media.startIcon')).width(20).height(20).fillColor('#FFFFFF')
+              Text('按住说话').fontSize(14).fontColor('#FFFFFF')
+            }
+          }
+        }
+      }
+      .width(180).height(44).borderRadius(22)
+      .backgroundColor(this.isRecording ? '#FF4D4F' : '#4A90E2')
+      .shadow({ radius: 6, color: this.isRecording ? '#FF4D4F40' : '#4A90E240', offsetY: 3 })
+      .onClick(() => { this.toggleRecording(); })
     }
-    .width('60%')
-    .height(46)
-    .backgroundColor(this.buttonColor)
-    .borderRadius(28)
-    .justifyContent(FlexAlign.Center)
-    .alignItems(VerticalAlign.Center)
-    .shadow({
-      radius: 6,
-      color: 'rgba(0, 0, 0, 0.2)',
-      offsetX: 0,
-      offsetY: 4
-    })
-    .onClick(() => {
-      this.toggleRecording()
-      network_connect.send(this.recognizedText)
-      // if (this.recognizedText.length != 0) {
-
-      // } else {
-      //   promptAction.showToast({
-      //     message: "消息内容不能为空",
-      //     duration: 2000,
-      //     bottom:200
-      //   })
-      // }
-
-    }
-
-    )
-
+    .width('100%').padding({ top: 8, bottom: 12 }).alignItems(HorizontalAlign.Center)
   }
 }
