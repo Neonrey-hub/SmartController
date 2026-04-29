@@ -1,29 +1,34 @@
-// entry/src/main/ets/components/control/ControlConsole.ets
-import { ControlState, ButtonType } from '../../models/ControlState'
+import { ControlState, ControlMode, ButtonType, controlState } from '../../models/ControlState'
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 import { ControlButtons } from './ControlButtons'
 import { StatusIndicator } from './StatusIndicator'
 import { ControlSlider } from './ControlSlider'
-import { curb_hardware } from "ets/network/API_risc"
+import { network_connect } from "ets/network/network_connect";
+import { curb_hardware } from "ets/network/API_risc";
+import { cryptoFramework } from '@kit.CryptoArchitectureKit'
 
+/**
+ * 设备联动控制台主容器组件
+ * 整合了所有控制台子组件，提供完整的设备控制功能
+ */
 @ComponentV2
 export struct ControlConsole {
-  @Param controlState: ControlState = new ControlState();
-  @Local selectedButton: ButtonType = this.controlState.selectedButton;
-  @Param onLog?: (msg: string) => void = () => {};
+  /** 控制状态 - 从父组件传入 */
+  @Local controlState: ControlState =  controlState;
+  /** 当前选中的按钮类型 - 独立状态以确保UI正确更新 */
+  @Local selectedButton: ButtonType = ButtonType.DISPLAY;
+  /** 状态变化回调 */
+  onStateChange?: (state: ControlState) => void;
 
   aboutToAppear() {
+    // 初始化 selectedButton 与 controlState 同步
     this.selectedButton = this.controlState.selectedButton;
-  }
-
-  private updateActuatorStats(): void {
-    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
-    this.controlState.linkageRatio = Math.round((this.controlState.activeDeviceCount / this.controlState.actuatorTotal) * 100);
   }
 
   build() {
     Column({ space: AppDimensions.SPACING_MD }) {
+      // 标题栏
       Row() {
         Text('设备联动控制台')
           .fontSize(AppDimensions.FONT_SIZE_MD)
@@ -34,6 +39,7 @@ export struct ControlConsole {
       .justifyContent(FlexAlign.Start)
       .alignItems(VerticalAlign.Center)
 
+      // 控制按钮组
       ControlButtons({
         selectedButton: this.selectedButton,
         onButtonClick: (type: ButtonType) => {
@@ -41,16 +47,27 @@ export struct ControlConsole {
         }
       })
 
+      // 状态指示器组
       Row({ space: AppDimensions.SPACING_MD }) {
         StatusIndicator({
           name: '蜂鸣器',
           isEnabled: this.controlState.buzzerEnabled,
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
-            curb_hardware.check_buzzer(enabled);
+            if (enabled) {
+              curb_hardware.check_buzzer(true)
+              // network_connect.send("打开蜂鸣器")
+            }else {
+              curb_hardware.check_buzzer(false)
+              //
+              // network_connect.send("关闭蜂鸣器")
+            }
+            console.log("debug debug 打开蜂鸣器",String(enabled))
             this.controlState.buzzerEnabled = enabled;
-            this.updateActuatorStats();
-            this.onLog?.(`蜂鸣器 ${enabled ? '开启' : '关闭'}`);
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+            if (this.onStateChange) {
+              this.onStateChange(this.controlState);
+            }
           }
         })
         StatusIndicator({
@@ -58,10 +75,18 @@ export struct ControlConsole {
           isEnabled: this.controlState.greenLightEnabled,
           color: AppColors.SUCCESS,
           onToggle: (enabled: boolean) => {
-            curb_hardware.check_green(enabled);
+            if (enabled) {
+              // network_connect.send("打开绿灯")
+              curb_hardware.check_green(true)
+            }else {
+              // network_connect.send("关闭绿灯")
+              curb_hardware.check_green(false)
+            }
             this.controlState.greenLightEnabled = enabled;
-            this.updateActuatorStats();
-            this.onLog?.(`绿灯 ${enabled ? '开启' : '关闭'}`);
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+            if (this.onStateChange) {
+              this.onStateChange(this.controlState);
+            }
           }
         })
       }
@@ -74,10 +99,19 @@ export struct ControlConsole {
           isEnabled: this.controlState.yellowLightEnabled,
           color: AppColors.WARNING,
           onToggle: (enabled: boolean) => {
-            curb_hardware.check_yellow(enabled);
+            if (enabled) {
+              curb_hardware.check_yellow(true)
+              // network_connect.send("打开黄灯")
+            }else {
+              curb_hardware.check_yellow(false)
+
+              // network_connect.send("关闭黄灯")
+            }
             this.controlState.yellowLightEnabled = enabled;
-            this.updateActuatorStats();
-            this.onLog?.(`黄灯 ${enabled ? '开启' : '关闭'}`);
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+            if (this.onStateChange) {
+              this.onStateChange(this.controlState);
+            }
           }
         })
         StatusIndicator({
@@ -85,35 +119,46 @@ export struct ControlConsole {
           isEnabled: this.controlState.redLightEnabled,
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
-            curb_hardware.check_red(enabled);
+            if (enabled) {
+              curb_hardware.check_red(true)
+              // network_connect.send("打开红灯")
+            }else {
+              curb_hardware.check_red(false)
+              // network_connect.send("关闭红灯")
+            }
             this.controlState.redLightEnabled = enabled;
-            this.updateActuatorStats();
-            this.onLog?.(`红灯 ${enabled ? '开启' : '关闭'}`);
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+            if (this.onStateChange) {
+              this.onStateChange(this.controlState);
+            }
           }
         })
       }
       .width('100%')
       .justifyContent(FlexAlign.Center)
 
+      // 滑块控件组
       Column({ space: AppDimensions.SPACING_MD }) {
         ControlSlider({
           label: '小灯亮度',
           value: this.controlState.smallLightBrightness,
           onValueChange: (value: number) => {
-            curb_hardware.API_brightness(value);
+            curb_hardware.API_brightness(value)
             this.controlState.change_smallLightBrightness(value);
-            this.updateActuatorStats();
-            this.onLog?.(`小灯亮度 设置为 ${Math.round(value)}%`);
+            if (this.onStateChange) {
+              this.onStateChange(this.controlState);
+            }
           }
         })
         ControlSlider({
           label: '风扇转速',
           value: this.controlState.fanSpeed,
           onValueChange: (value: number) => {
-            curb_hardware.API_fan(value);
+            curb_hardware.API_fan(value)
             this.controlState.fanSpeed = value;
-            this.updateActuatorStats();
-            this.onLog?.(`风扇转速 设置为 ${Math.round(value)}%`);
+            if (this.onStateChange) {
+              this.onStateChange(this.controlState);
+            }
           }
         })
       }
@@ -125,45 +170,134 @@ export struct ControlConsole {
     .borderRadius(AppDimensions.RADIUS_LG)
   }
 
+  /**
+   * 处理按钮点击
+   */
   private handleButtonClicked(type: ButtonType): void {
+    console.log('Button clicked:', type);
+    console.log('Before update, selectedButton:', this.selectedButton);
+
+    // 更新独立的 selectedButton 状态
     this.selectedButton = type;
+
+    // 同时更新 controlState 中的 selectedButton
     this.controlState.selectedButton = type;
 
+    // 根据模式执行不同的设备控制逻辑
     switch (type) {
       case ButtonType.DISPLAY:
-        this.controlState.buzzerEnabled = false;
-        this.controlState.greenLightEnabled = true;
-        this.controlState.yellowLightEnabled = true;
-        this.controlState.redLightEnabled = true;
-        curb_hardware.check_buzzer(false);
-        curb_hardware.check_green(true);
-        curb_hardware.check_yellow(true);
-        curb_hardware.check_red(true);
-        this.onLog?.('展示模式已应用');
+        this.setDisplayMode();
         break;
       case ButtonType.ALARM:
-        this.controlState.buzzerEnabled = true;
-        this.controlState.greenLightEnabled = false;
-        this.controlState.yellowLightEnabled = false;
-        this.controlState.redLightEnabled = true;
-        curb_hardware.check_buzzer(true);
-        curb_hardware.check_green(false);
-        curb_hardware.check_yellow(false);
-        curb_hardware.check_red(true);
-        this.onLog?.('告警模式已应用');
+        this.setAlarmMode();
         break;
       case ButtonType.MUTE:
-        this.controlState.buzzerEnabled = false;
-        this.controlState.greenLightEnabled = false;
-        this.controlState.yellowLightEnabled = false;
-        this.controlState.redLightEnabled = false;
-        curb_hardware.check_buzzer(false);
-        curb_hardware.check_green(false);
-        curb_hardware.check_yellow(false);
-        curb_hardware.check_red(false);
-        this.onLog?.('静音模式已应用');
+        this.setMuteMode();
         break;
     }
-    this.updateActuatorStats();
+
+    console.log('After update, selectedButton:', this.selectedButton);
+
+    if (this.onStateChange) {
+      this.onStateChange(this.controlState);
+    }
+  }
+
+  /**
+   * 设置展示模式：开启绿灯、黄灯、红灯
+   */
+  private setDisplayMode(): void {
+    // 开启所有灯光
+    this.controlDevice('绿灯', true, (enabled) => {
+      this.controlState.greenLightEnabled = enabled;
+    });
+    this.controlDevice('黄灯', true, (enabled) => {
+      this.controlState.yellowLightEnabled = enabled;
+    });
+    this.controlDevice('红灯', true, (enabled) => {
+      this.controlState.redLightEnabled = enabled;
+    });
+    
+    // 关闭蜂鸣器
+    this.controlDevice('蜂鸣器', false, (enabled) => {
+      this.controlState.buzzerEnabled = enabled;
+    });
+    
+    // 更新激活设备数量
+    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+    
+    console.log('设置展示模式：开启所有灯光');
+  }
+
+  /**
+   * 设置告警模式：开启蜂鸣器和红灯，关闭其他设备
+   */
+  private setAlarmMode(): void {
+    // 开启蜂鸣器和红灯
+    this.controlDevice('蜂鸣器', true, (enabled) => {
+      this.controlState.buzzerEnabled = enabled;
+    });
+    this.controlDevice('红灯', true, (enabled) => {
+      this.controlState.redLightEnabled = enabled;
+    });
+    
+    // 关闭其他设备
+    this.controlDevice('绿灯', false, (enabled) => {
+      this.controlState.greenLightEnabled = enabled;
+    });
+    this.controlDevice('黄灯', false, (enabled) => {
+      this.controlState.yellowLightEnabled = enabled;
+    });
+    
+    // 更新激活设备数量
+    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+    
+    console.log('设置告警模式：开启蜂鸣器和红灯');
+  }
+
+  /**
+   * 设置静音模式：关闭所有灯光和蜂鸣器
+   */
+  private setMuteMode(): void {
+    // 关闭所有设备
+    this.controlDevice('蜂鸣器', false, (enabled) => {
+      this.controlState.buzzerEnabled = enabled;
+    });
+    this.controlDevice('绿灯', false, (enabled) => {
+      this.controlState.greenLightEnabled = enabled;
+    });
+    this.controlDevice('黄灯', false, (enabled) => {
+      this.controlState.yellowLightEnabled = enabled;
+    });
+    this.controlDevice('红灯', false, (enabled) => {
+      this.controlState.redLightEnabled = enabled;
+    });
+    
+    // 更新激活设备数量
+    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+    
+    console.log('设置静音模式：关闭所有设备');
+  }
+
+  /**
+   * 统一设备控制方法
+   * @param deviceName 设备名称（用于发送控制指令）
+   * @param enabled 目标状态（true=开启，false=关闭）
+   * @param updateState 状态更新回调
+   */
+  private controlDevice(deviceName: string, enabled: boolean, updateState: (enabled: boolean) => void): void {
+    const action = enabled ? '打开' : '关闭';
+    const command = `${action}${deviceName}`;
+    
+    // 发送控制指令
+    try {
+      network_connect.send(command);
+      console.log(`发送控制指令: ${command}`);
+    } catch (e) {
+      console.warn(`发送控制指令失败: ${command}`, e);
+    }
+    
+    // 更新本地状态
+    updateState(enabled);
   }
 }

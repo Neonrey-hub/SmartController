@@ -120,6 +120,10 @@ export class setting{
     }
   }
 
+  change_coils_green(isenabled:boolean){
+    this.get_data.actuators.coils.green = isenabled
+  }
+
   destroy() {
     if (this.timerId) {
       clearInterval(this.timerId);
