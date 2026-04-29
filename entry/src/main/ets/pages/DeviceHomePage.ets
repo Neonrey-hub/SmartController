@@ -5,13 +5,14 @@ import { ActuatorOccupancy } from '../components/actuator/ActuatorOccupancy'
 import { EventLog, EventLogItem } from '../components/log/EventLog'
 import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 import { DateUtils } from '../utils/DateUtils'
-import { network_connect } from "ets/pages/network_connect";
+import { network_connect  , WebSocket_connect} from "ets/pages/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { data_setting , setting} from "ets/pages/get_data";
 
 @ComponentV2
 export struct DeviceHomePage {
+  @Local network_connect:WebSocket_connect = network_connect
   @Local deviceName: string = 'SmartController';
   @Local updateTime: string = '';
   @Local logItems: EventLogItem[] = [ { time: '22:48:55', message: 'DataV 大屏已更新' } ];
