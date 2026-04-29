@@ -83,11 +83,11 @@ export class setting{
 
       if (response.responseCode === 200) {
         // 强转成你定义的类型（关键！）
-        const data = JSON.parse(response.result as string) as ApiResponse;
+        this.get_data = JSON.parse(response.result as string) as ApiResponse;
 
         console.log("请求成功");
-        console.log("传感器数组数据：", data.sensor.pretty);
-        return data;
+        console.log("传感器数组数据：", this.get_data.sensor.pretty);
+        return this.get_data;
       } else {
         console.error("请求失败，状态码：", response.responseCode);
         return null;
@@ -100,5 +100,5 @@ export class setting{
   }
 
 }
-export const data:setting = new setting()
+export const data_setting:setting = new setting()
 
