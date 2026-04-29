@@ -71,3 +71,5 @@ export class ControlState {
     this.linkageRatio = 0;
   }
 }
+
+export const controlState = new ControlState()

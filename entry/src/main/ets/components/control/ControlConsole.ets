@@ -1,4 +1,4 @@
-import { ControlState, ControlMode, ButtonType } from '../../models/ControlState'
+import { ControlState, ControlMode, ButtonType, controlState } from '../../models/ControlState'
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 import { ControlButtons } from './ControlButtons'
@@ -15,7 +15,7 @@ import { cryptoFramework } from '@kit.CryptoArchitectureKit'
 @ComponentV2
 export struct ControlConsole {
   /** 控制状态 */
-  @Local controlState: ControlState = new ControlState();
+  @Local controlState: ControlState =  controlState;
   /** 当前选中的按钮类型 - 独立状态以确保UI正确更新 */
   @Local selectedButton: ButtonType = ButtonType.DISPLAY;
   /** 状态变化回调 */

@@ -1,4 +1,4 @@
-import { ControlState } from '../../models/ControlState'
+import { controlState, ControlState } from '../../models/ControlState'
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 import { MetricCard } from './MetricCard'
@@ -12,7 +12,7 @@ import { data_setting,setting } from '../../network/get_data'
 @ComponentV2
 export struct ActuatorOccupancy {
   /** 控制状态数据 */
-  @Local controlState: ControlState = new ControlState();
+  @Local controlState: ControlState =  controlState;
   @Local data_setting:setting = data_setting
   build() {
     Column({ space: AppDimensions.SPACING_MD }) {
