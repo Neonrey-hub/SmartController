@@ -2,15 +2,24 @@
 import { EdgeDataQuality } from '../components/sensor/EdgeDataQuality'
 import { IndustrialSensorCard, SensorItem } from '../components/sensor/IndustrialSensorCard'
 import { TrendChartCard } from './TrendChartCard'
+import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { data_setting, setting } from "ets/network/get_data"
 import { AppColors } from '../constants/AppColors'
 import { AppDimensions } from '../constants/AppDimensions'
+import { generateAlarms } from '../utils/AlarmUtils'
 
 @ComponentV2
 export struct DataHomePage {
   @Local data_source: setting = data_setting
+  @Local comfortScore: number = 50
+
+  // ---------- 新增监听：数据更新时自动重新计算舒适指数 ----------
+  @Monitor('data_source.get_data.sensor.updated_at')
+  onSensorUpdated(): void {
+    this.updateComfortScore()
+  }
 
   /** 将传感器数据转换为 SensorItem 列表 */
   private getSensorItems(): SensorItem[] {
@@ -34,14 +43,12 @@ export struct DataHomePage {
 
   /**
    * 固定算法计算舒适指数 (0-100)
-   * 依据：温度、湿度、PM2.5、二氧化碳四项指标
    */
-  private calculateComfortScore(): number {
+  private calculateRawComfortScore(): number {
     try {
       const sensors = this.data_source.get_data?.sensor?.pretty
-      if (!sensors || sensors.length === 0) return 50 // 无数据时默认50
+      if (!sensors || sensors.length === 0) return 50
 
-      // 从 pretty 中提取指定传感器值
       const getValue = (tag: string): number | undefined => {
         const item = sensors.find(s => s.tag === tag)
         return item ? item.value : undefined
@@ -52,19 +59,30 @@ export struct DataHomePage {
       const pm25 = getValue('PM2.5')
       const co2 = getValue('二氧化碳')
 
-      // 各指标得分（0-1）
       const tempScore = temp !== undefined ? Math.max(0, 1 - Math.abs(temp - 25) / 10) : 0.5
       const humidScore = humid !== undefined ? Math.max(0, 1 - Math.abs(humid - 45) / 25) : 0.5
       const pm25Score = pm25 !== undefined ? Math.max(0, 1 - pm25 / 35) : 0.5
       const co2Score = co2 !== undefined ? Math.max(0, 1 - co2 / 1000) : 0.5
 
-      // 加权综合（权重可调）
       const overall = 0.25 * tempScore + 0.25 * humidScore + 0.25 * pm25Score + 0.25 * co2Score
       return Math.round(overall * 100)
     } catch (e) {
       console.error('计算舒适指数失败', e)
-      return 45 // 兜底值
+      return 45
     }
+  }
+
+  /** 平滑更新舒适指数显示（带动画） */
+  private updateComfortScore() {
+    const target = this.calculateRawComfortScore()
+    animateTo({ duration: 600, curve: Curve.EaseOut }, () => {
+      this.comfortScore = target
+    })
+  }
+
+  /** 生成告警列表 */
+  private getAlarmItems(): AlarmItem[] {
+    return generateAlarms(this.getSensorItems())
   }
 
   build() {
@@ -83,7 +101,7 @@ export struct DataHomePage {
 
         Scroll() {
           Column({ space: 20 }) {
-            // ---- 动态舒适指数环 ----
+            // --- 舒适指数环 ---
             Column() {
               Stack({ alignContent: Alignment.Center }) {
                 Circle()
@@ -91,13 +109,13 @@ export struct DataHomePage {
                   .fill('#1A3050')
                   .opacity(0.3)
 
-                Progress({ value: 100, total: 100, type: ProgressType.Ring })
+                Progress({ value: this.comfortScore, total: 100, type: ProgressType.Ring })
                   .backgroundColor('#1A3050')
                   .style({ strokeWidth: 16 })
                   .width(220).height(220)
 
                 Column() {
-                  Text(`${this.calculateComfortScore()}`)  // 动态计算
+                  Text(`${this.comfortScore}`)
                     .fontSize(64).fontWeight(FontWeight.Bold)
                     .fontColor('#DDF8FF')
                   Text('舒适指数')
@@ -120,18 +138,22 @@ export struct DataHomePage {
             })
             .shadow({ radius: 16, color: '#00000040', offsetY: 6 })
 
-            // 十合一传感器卡片（动态数据）
+            // 传感器卡片
             IndustrialSensorCard({
               sensorItems: this.getSensorItems()
             })
               .width('100%')
 
-            // 趋势图表卡片
+            // 趋势图
             TrendChartCard()
               .width('100%')
 
-            // 边缘数据质量卡片
+            // 边缘数据质量
             EdgeDataQuality({ abnormalCount: 7 })
+              .width('100%')
+
+            // 告警队列
+            AlarmQueue({ alarmItems: this.getAlarmItems() })
               .width('100%')
               .layoutWeight(1)
           }

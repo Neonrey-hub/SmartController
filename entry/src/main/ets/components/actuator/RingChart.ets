@@ -1,20 +1,20 @@
+// entry/src/main/ets/components/actuator/RingChart.ets
 import { AppColors } from '../../constants/AppColors'
 
-/**
- * 环形进度图组件
- * 展示执行器激活占比的可视化环形图
- */
-@Component
+@ComponentV2
 export struct RingChart {
-  /** 激活占比 (0-100) */
-  @Prop percentage: number = 0;
-  /** 环形图尺寸 */
-  @Prop chartSize: number = 120;
-  /** 环宽 */
-  @Prop strokeWidth: number = 14;
+  @Param percentage: number = 0;
+  @Param chartSize: number = 120;
+  @Param strokeWidth: number = 14;
 
   private settings: RenderingContextSettings = new RenderingContextSettings(true);
   private context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings);
+
+  // 使用 @Monitor 监听 percentage 变化，并触发重绘
+  @Monitor('percentage')
+  onPercentChanged() {
+    this.drawRing();
+  }
 
   build() {
     Canvas(this.context)
@@ -25,9 +25,6 @@ export struct RingChart {
       })
   }
 
-  /**
-   * 绘制环形图
-   */
   private drawRing(): void {
     const cx = this.chartSize / 2;
     const cy = this.chartSize / 2;

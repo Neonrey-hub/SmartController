@@ -1,28 +1,18 @@
+// entry/src/main/ets/components/log/EventLog.ets
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 
-/**
- * 事件日志条目数据结构
- */
 export interface EventLogItem {
-  /** 时间戳字符串，如 "22:48:55" */
   time: string;
-  /** 事件内容描述 */
   message: string;
 }
 
-/**
- * 工业事件日志组件
- * 展示控制回执与系统事件追踪日志列表
- */
-@Component
+@ComponentV2
 export struct EventLog {
-  /** 日志条目列表 */
-  logItems: EventLogItem[] = [];
+  @Param logItems: EventLogItem[] = [];
 
   build() {
     Column({ space: AppDimensions.SPACING_MD }) {
-      // 标题行
       Row() {
         Text('工业事件日志')
           .fontSize(AppDimensions.FONT_SIZE_MD)
@@ -37,7 +27,6 @@ export struct EventLog {
       .justifyContent(FlexAlign.SpaceBetween)
       .alignItems(VerticalAlign.Center)
 
-      // 日志内容区
       Column({ space: AppDimensions.SPACING_SM }) {
         if (this.logItems.length === 0) {
           Text('暂无事件日志')

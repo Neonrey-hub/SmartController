@@ -1,42 +1,23 @@
+// entry/src/main/ets/components/log/AlarmQueue.ets
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 
-/**
- * 告警等级枚举
- */
 export enum AlarmLevel {
-  /** 严重告警 - 红色 */
   CRITICAL = 'critical',
-  /** 警告 - 橙色 */
   WARNING = 'warning',
-  /** 提示 - 蓝色 */
   INFO = 'info'
 }
 
-/**
- * 告警队列条目数据结构
- */
 export interface AlarmItem {
-  /** 告警唯一 ID */
   id: string;
-  /** 告警内容描述，如 "温度 越界 31.88 ℃" */
   message: string;
-  /** 告警等级，决定左边框颜色 */
   level: AlarmLevel;
 }
 
-/**
- * 工业告警队列组件
- * 展示数值触发与联动事件的告警列表
- */
-@Component
+@ComponentV2
 export struct AlarmQueue {
-  /** 告警条目列表 */
-  alarmItems: AlarmItem[] = [];
+  @Param alarmItems: AlarmItem[] = [];
 
-  /**
-   * 根据告警等级返回对应颜色
-   */
   private getLevelColor(level: AlarmLevel): string {
     if (level === AlarmLevel.CRITICAL) {
       return AppColors.ERROR;
@@ -49,7 +30,6 @@ export struct AlarmQueue {
 
   build() {
     Column({ space: AppDimensions.SPACING_MD }) {
-      // 标题行
       Row() {
         Text('工业告警队列')
           .fontSize(AppDimensions.FONT_SIZE_MD)
@@ -64,7 +44,6 @@ export struct AlarmQueue {
       .justifyContent(FlexAlign.SpaceBetween)
       .alignItems(VerticalAlign.Center)
 
-      // 告警内容区
       Column({ space: AppDimensions.SPACING_SM }) {
         if (this.alarmItems.length === 0) {
           Text('暂无告警')

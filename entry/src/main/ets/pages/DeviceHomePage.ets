@@ -3,27 +3,85 @@ import { DeviceInfoCard } from '../components/device/DeviceInfoCard'
 import { ControlConsole } from '../components/control/ControlConsole'
 import { ActuatorOccupancy } from '../components/actuator/ActuatorOccupancy'
 import { EventLog, EventLogItem } from '../components/log/EventLog'
-import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
+import { AlarmQueue, AlarmItem } from '../components/log/AlarmQueue'
 import { DateUtils } from '../utils/DateUtils'
-import { network_connect  , WebSocket_connect} from "ets/network/network_connect";
+import { ControlState, controlState } from '../models/ControlState'
+import { network_connect, WebSocket_connect } from "ets/network/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
-import { data_setting , setting} from "ets/network/get_data";
+import { data_setting } from "ets/network/get_data";
+import { generateAlarms } from '../utils/AlarmUtils'
+import { SensorItem } from '../components/sensor/IndustrialSensorCard'
 
 @ComponentV2
 export struct DeviceHomePage {
-  @Local network_connect:WebSocket_connect = network_connect
+  @Local network_connect: WebSocket_connect = network_connect
   @Local deviceName: string = 'SmartController';
   @Local updateTime: string = '';
-  @Local logItems: EventLogItem[] = [ { time: '22:48:55', message: 'DataV 大屏已更新' } ];
-  @Local alarmItems: AlarmItem[] = [
-    { id: '1', message: '温度 越界 31.88 ℃', level: AlarmLevel.CRITICAL },
-    { id: '2', message: '甲醇 过高 0.26 mg/m³', level: AlarmLevel.CRITICAL }
-  ];
+  @Local logItems: EventLogItem[] = [];
+  @Local alarmItems: AlarmItem[] = [];
+  @Local controlState: ControlState = controlState;
+
+  private timerId: number = -1;
+  private lastLogMessage: string = '';
+  private lastLogTime: number = 0;
+  private initialized: boolean = false;
 
   aboutToAppear() {
+    if (this.initialized) return;
+    this.initialized = true;
+
     this.updateTime = DateUtils.getCurrentDateTime();
     network_connect.reconnect();
+    this.addLog('DataV 大屏已更新');
+    this.startAlarmAndLogUpdate();
+  }
+
+  aboutToDisappear() {
+    clearInterval(this.timerId);
+  }
+
+  private startAlarmAndLogUpdate(): void {
+    this.timerId = setInterval(() => {
+      this.updateTime = DateUtils.getCurrentDateTime();
+      const sensorItems: SensorItem[] = this.getSensorItems();
+      this.alarmItems = generateAlarms(sensorItems);
+    }, 1000);
+  }
+
+  private getSensorItems(): SensorItem[] {
+    const pretty = data_setting.get_data?.sensor?.pretty;
+    if (!pretty) {
+      return [];
+    }
+    const result: SensorItem[] = [];
+    for (const item of pretty) {
+      result.push({
+        name: item.tag,
+        value: item.value.toFixed(1),
+        unit: item.unit
+      })
+    }
+    return result;
+  }
+
+  /** 添加事件日志，自动记录时间 */
+  private addLog(message: string): void {
+    const now = Date.now();
+    // 如果消息与上次完全相同且距上次不到2秒，则忽略
+    if (message === this.lastLogMessage && (now - this.lastLogTime) < 2000) {
+      return;
+    }
+    this.lastLogMessage = message;
+    this.lastLogTime = now;
+
+    const date = new Date();
+    const hh = date.getHours().toString().padStart(2, '0');
+    const mm = date.getMinutes().toString().padStart(2, '0');
+    const ss = date.getSeconds().toString().padStart(2, '0');
+    const time = `${hh}:${mm}:${ss}`;
+    const newItem: EventLogItem = { time: time, message: message };
+    this.logItems = [newItem, ...this.logItems].slice(0, 20);
   }
 
   build() {
@@ -34,7 +92,11 @@ export struct DeviceHomePage {
 
         Scroll() {
           Column({ space: 20 }) {
-            DeviceInfoCard({ deviceName: this.deviceName, isOnline: network_connect.state, updateTime: this.updateTime })
+            DeviceInfoCard({
+              deviceName: this.deviceName,
+              isOnline: network_connect.state,
+              updateTime: this.updateTime
+            })
 
             Column() {
               Row() {
@@ -44,11 +106,15 @@ export struct DeviceHomePage {
                   .fontSize(12).fontColor(network_connect.state ? '#4ADE80' : '#EF4444')
               }
               .width('100%').padding({ top: 12, left: 16, right: 16 })
-              ControlConsole({})
+              ControlConsole({
+                controlState: this.controlState,
+                onLog: (msg: string) => this.addLog(msg)
+              })
             }
             .width('100%').backgroundColor('#121E3A').borderRadius(20).shadow({ radius: 12, color: '#00000040', offsetY: 4 })
 
-            ActuatorOccupancy()
+            ActuatorOccupancy({ controlState: this.controlState })
+
             EventLog({ logItems: this.logItems })
 
             Column() {
