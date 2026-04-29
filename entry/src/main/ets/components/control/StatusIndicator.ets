@@ -1,44 +1,39 @@
+// entry/src/main/ets/components/control/StatusIndicator.ets
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 
-/**
- * 状态指示器组件
- * 用于显示蜂鸣器、绿灯、黄灯、红灯等状态
- */
 @Component
 export struct StatusIndicator {
-  /** 指示器名称 */
   @Prop name: string = '';
-  /** 是否启用 */
   @Prop isEnabled: boolean = false;
-  /** 状态颜色 */
   @Prop color: string = AppColors.TEXT_DISABLED;
-  /** 状态切换回调 */
   onToggle?: (enabled: boolean) => void;
 
   build() {
     Row({ space: AppDimensions.SPACING_SM }) {
-      // 状态指示灯
+      // 状态点，开启时发光
       Circle()
-        .width(12)
-        .height(12)
+        .width(12).height(12)
         .fill(this.isEnabled ? this.color : AppColors.TEXT_DISABLED)
         .opacity(this.isEnabled ? 1 : 0.3)
-
-      // 状态名称
+        .shadow({ radius: this.isEnabled ? 6 : 0, color: this.isEnabled ? this.color : 'transparent' })
       Text(this.name)
         .fontSize(AppDimensions.FONT_SIZE_SM)
         .fontColor(this.isEnabled ? AppColors.TEXT_PRIMARY : AppColors.TEXT_TERTIARY)
-    }
-    .padding({ left: AppDimensions.SPACING_SM, right: AppDimensions.SPACING_SM, top: 8, bottom: 8 })
-    .backgroundColor(this.isEnabled ? 'rgba(52, 152, 219, 0.1)' : 'transparent')
-    .borderRadius(AppDimensions.RADIUS_MD)
-    .borderWidth(1)
-    .borderColor(this.isEnabled ? AppColors.INFO : AppColors.DIVIDER)
-    .onClick(() => {
-      if (this.onToggle) {
-        this.onToggle(!this.isEnabled);
+        .fontWeight(this.isEnabled ? FontWeight.Medium : FontWeight.Normal)
+      Blank()
+      if (this.isEnabled) {
+        Text('已开启')
+          .fontSize(10).fontColor('#FFFFFF')
+          .padding({ left: 8, right: 8, top: 2, bottom: 2 })
+          .backgroundColor(`${this.color}30`).borderRadius(6)
       }
-    })
+    }
+    .padding({ left: 16, right: 16, top: 12, bottom: 12 })
+    .backgroundColor(this.isEnabled ? `${this.color}10` : '#121E3A')
+    .borderRadius(12)
+    .borderWidth(1.5)
+    .borderColor(this.isEnabled ? `${this.color}40` : '#2D3E50')
+    .onClick(() => { if (this.onToggle) this.onToggle(!this.isEnabled) })
   }
 }

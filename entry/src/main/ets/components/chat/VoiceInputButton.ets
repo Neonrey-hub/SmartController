@@ -36,8 +36,8 @@ export struct VoiceInputButton {
       onResult: (text: string, isFinal: boolean) => {
         this.recognizedText = text;
         if (isFinal && text.length > 0) {
-          // 添加用户消息到对话列表（右侧气泡）
-          network_connect.str_arr.push([text, "0"]);
+
+
           // 发送设备控制指令（允许失败）
           try {
             network_connect.send(text).catch((e: Error) => console.warn('发送设备指令失败:', e.message));
