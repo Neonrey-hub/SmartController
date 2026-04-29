@@ -1,9 +1,9 @@
 // entry/src/main/ets/pages/ChatPage.ets
-import { network_connect, WebSocket_connect } from "ets/pages/network_connect";
+import { network_connect, WebSocket_connect } from "ets/network/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { VoiceInputButton } from '../components/chat/VoiceInputButton'
-import { data_setting , setting} from "ets/pages/get_data";
+import { data_setting , setting} from "ets/network/get_data";
 
 @ComponentV2
 export struct ChatPage {

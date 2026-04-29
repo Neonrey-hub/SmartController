@@ -2,7 +2,7 @@
 import { PermissionManager } from '../../managers/PermissionManager';
 import { AudioCaptureManager } from '../../managers/AudioCaptureManager';
 import { AsrWebSocketManager } from '../../managers/AsrWebSocketManager';
-import { network_connect } from "ets/pages/network_connect";
+import { network_connect } from "ets/network/network_connect";
 import common from '@ohos.app.ability.common';
 
 @ComponentV2

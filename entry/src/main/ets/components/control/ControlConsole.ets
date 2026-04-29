@@ -5,6 +5,8 @@ import { ControlButtons } from './ControlButtons'
 import { StatusIndicator } from './StatusIndicator'
 import { ControlSlider } from './ControlSlider'
 import { network_connect } from "ets/network/network_connect";
+import { curb_hardware } from "ets/network/API_risc";
+import { cryptoFramework } from '@kit.CryptoArchitectureKit'
 
 /**
  * 设备联动控制台主容器组件
@@ -53,9 +55,12 @@ export struct ControlConsole {
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
             if (enabled) {
-              network_connect.send("打开蜂鸣器")
+              curb_hardware.check_buzzer(true)
+              // network_connect.send("打开蜂鸣器")
             }else {
-              network_connect.send("关闭蜂鸣器")
+              curb_hardware.check_buzzer(false)
+              //
+              // network_connect.send("关闭蜂鸣器")
             }
             console.log("debug debug 打开蜂鸣器",String(enabled))
             this.controlState.buzzerEnabled = enabled;
@@ -70,9 +75,11 @@ export struct ControlConsole {
           color: AppColors.SUCCESS,
           onToggle: (enabled: boolean) => {
             if (enabled) {
-              network_connect.send("打开绿灯")
+              // network_connect.send("打开绿灯")
+              curb_hardware.check_green(true)
             }else {
-              network_connect.send("关闭绿灯")
+              // network_connect.send("关闭绿灯")
+              curb_hardware.check_green(false)
             }
             this.controlState.greenLightEnabled = enabled;
             if (this.onStateChange) {
@@ -91,9 +98,12 @@ export struct ControlConsole {
           color: AppColors.WARNING,
           onToggle: (enabled: boolean) => {
             if (enabled) {
-              network_connect.send("打开黄灯")
+              curb_hardware.check_yellow(true)
+              // network_connect.send("打开黄灯")
             }else {
-              network_connect.send("关闭黄灯")
+              curb_hardware.check_yellow(false)
+
+              // network_connect.send("关闭黄灯")
             }
             this.controlState.yellowLightEnabled = enabled;
             if (this.onStateChange) {
@@ -107,9 +117,11 @@ export struct ControlConsole {
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
             if (enabled) {
-              network_connect.send("打开红灯")
+              curb_hardware.check_red(true)
+              // network_connect.send("打开红灯")
             }else {
-              network_connect.send("关闭红灯")
+              curb_hardware.check_red(false)
+              // network_connect.send("关闭红灯")
             }
             this.controlState.redLightEnabled = enabled;
             if (this.onStateChange) {
@@ -127,6 +139,7 @@ export struct ControlConsole {
           label: '小灯亮度',
           value: this.controlState.smallLightBrightness,
           onValueChange: (value: number) => {
+            curb_hardware.API_brightness(value)
             this.controlState.smallLightBrightness = value;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
@@ -137,6 +150,7 @@ export struct ControlConsole {
           label: '风扇转速',
           value: this.controlState.fanSpeed,
           onValueChange: (value: number) => {
+            curb_hardware.API_fan(value)
             this.controlState.fanSpeed = value;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
