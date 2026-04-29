@@ -2,6 +2,7 @@
 import { EdgeDataQuality } from '../components/sensor/EdgeDataQuality'
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
+import { data_setting , setting} from "ets/pages/get_data";
 
 
 @Component
