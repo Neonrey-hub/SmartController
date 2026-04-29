@@ -2,6 +2,9 @@ import { webSocket } from '@kit.NetworkKit';
 import { BusinessError } from '@ohos.base';
 import wifiManager from '@ohos.wifiManager';
 import { util } from '@kit.ArkTS';
+import { data_setting } from "ets/pages/get_data";
+
+
 
 interface websocketmessage{
   "type": string,
@@ -37,7 +40,7 @@ export class WebSocket_connect {
   private ws: webSocket.WebSocket | null = null;
   /*公网测试地址*/
   // @Trace ip:string = "119.29.15.120:8000"
-  @Trace ip:string = "192.168.99.11:8000";
+  @Trace ip:string = "10.241.148.11:8000";
   @Trace str_arr:string[][] = []
   // @Trace data = {"success": true, "meta": {"updated_at": "2026-04-29T06:54:07.850050+00:00", "sensor_revision": 363331, "control_revision": 874, "state_file": "/opt/demo-real/modbus_real_state.json", "runtime": "real-device"}, "sensor": {"online": true, "values": [447.0, 0.114, 0.049, 5.0, 69.6, 19.752, 5.0, 4.0, 416.0, 33.88], "pretty": [{"tag": "二氧化碳", "value": 447.0, "unit": "ppm", "scale": 1}, {"tag": "TVOC总挥发物", "value": 0.114, "unit": "mg/m³", "scale": 0.001}, {"tag": "甲醛", "value": 0.049, "unit": "mg/m³", "scale": 0.001}, {"tag": "PM2.5", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "湿度", "value": 69.6, "unit": "%RH", "scale": 0.015}, {"tag": "温度", "value": 19.752, "unit": "℃", "scale": 0.008}, {"tag": "PM10", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "PM1.0", "value": 4.0, "unit": "μg/m³", "scale": 1}, {"tag": "光照度", "value": 416.0, "unit": "Lux", "scale": 1}, {"tag": "噪声", "value": 33.88, "unit": "dB", "scale": 0.01}], "updated_at": "2026-04-29T06:54:07.843355+00:00", "last_source": "real-bridge"}, "actuators": {"coils": {"buzzer": false, "green": false, "yellow": false, "red": false}, "coil_labels": {"buzzer": "蜂鸣器", "green": "绿灯", "yellow": "黄灯", "red": "红灯"}, "brightness_percent": 0.0, "fan_percent": 0.0, "updated_at": "2026-04-29T06:54:07.850025+00:00", "last_source": "real-bridge-readback"}}
   /**
@@ -259,6 +262,7 @@ export class WebSocket_connect {
 
   send(data: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
+      data_setting.fetchSensorData()
       this.try_connect = 0 //重置重连次数限制
       if (!this.state) { //如果当前未连接,触发重连
         this.connect()
