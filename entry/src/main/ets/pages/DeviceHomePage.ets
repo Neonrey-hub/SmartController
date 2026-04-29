@@ -1,3 +1,4 @@
+// entry/src/main/ets/pages/DeviceHomePage.ets
 import { DeviceInfoCard } from '../components/device/DeviceInfoCard'
 import { ControlConsole } from '../components/control/ControlConsole'
 import { ActuatorOccupancy } from '../components/actuator/ActuatorOccupancy'
@@ -7,103 +8,66 @@ import { DateUtils } from '../utils/DateUtils'
 import { network_connect } from "ets/pages/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
-/**
- * 设备 Tab 主页：承载「设备」导航目标页，用于设备列表、控制面板等
- */
+
 @ComponentV2
 export struct DeviceHomePage {
-  /** 设备名称 */
-  @Local deviceName: string = '设备名称';
-  /** 更新时间 */
+  @Local deviceName: string = 'SmartController';
   @Local updateTime: string = '';
-  /** 事件日志列表 */
-  @Local logItems: EventLogItem[] = [
-    { time: '22:48:55', message: 'DataV 大屏已更新' }
-  ];
-  /** 告警队列列表 */
+  @Local logItems: EventLogItem[] = [ { time: '22:48:55', message: 'DataV 大屏已更新' } ];
   @Local alarmItems: AlarmItem[] = [
     { id: '1', message: '温度 越界 31.88 ℃', level: AlarmLevel.CRITICAL },
     { id: '2', message: '甲醇 过高 0.26 mg/m³', level: AlarmLevel.CRITICAL }
   ];
 
   aboutToAppear() {
-    // 初始化更新时间
     this.updateTime = DateUtils.getCurrentDateTime();
-    // 每次进入页面主动检测一次连接状态，WiFi 断开后重连场景下可快速恢复
-    // network_connect.reconnect();
+    network_connect.reconnect();
   }
 
   build() {
-    // 导航子页：与 Index 中 NavPathStack 的 DevicePage 路由名对应
     NavDestination() {
       Column() {
-        // 自定义顶栏
-        Row() {
-          Text($r('app.string.tab_device'))
-            .fontSize(18)
-            .fontWeight(FontWeight.Medium)
-            .fontColor(Color.White)
-        }
-        .width('100%')
-        .height(56)
-        .justifyContent(FlexAlign.Center)
-        .backgroundColor('#081F37')
+        Row() { Text('设备').fontSize(20).fontWeight(FontWeight.Bold).fontColor('#E0E6F0') }
+        .width('100%').height(56).justifyContent(FlexAlign.Center).backgroundColor('#081F37')
 
-        // 设备页内容区
         Scroll() {
-          Column({ space: 12 }) {
-            // 设备信息卡片
-            DeviceInfoCard({
-              deviceName: this.deviceName,
-              isOnline: network_connect.state,
-              updateTime: this.updateTime
-            })
+          Column({ space: 20 }) {
+            DeviceInfoCard({ deviceName: this.deviceName, isOnline: network_connect.state, updateTime: this.updateTime })
 
-            // 设备联动控制台
-            ControlConsole({
-              onStateChange: (state) => {
-                console.log('控制台状态变化:', state);
+            Column() {
+              Row() {
+                Text('快捷控制').fontSize(16).fontWeight(FontWeight.Medium).fontColor('#B0C4D8')
+                Blank()
+                Text(network_connect.state ? '● 在线' : '○ 离线')
+                  .fontSize(12).fontColor(network_connect.state ? '#4ADE80' : '#EF4444')
               }
-            })
+              .width('100%').padding({ top: 12, left: 16, right: 16 })
+              ControlConsole({ onStateChange: (state) => { console.log('控制台状态已更新'); } })
+            }
+            .width('100%').backgroundColor('#121E3A').borderRadius(20).shadow({ radius: 12, color: '#00000040', offsetY: 4 })
 
-            // 执行器联动占用
             ActuatorOccupancy()
-
-            // 工业事件日志
             EventLog({ logItems: this.logItems })
 
-            // 工业告警队列
-            AlarmQueue({ alarmItems: this.alarmItems })
+            Column() {
+              AlarmQueue({ alarmItems: this.alarmItems })
+            }
+            .width('100%').border({ width: 2, color: '#EF444420', style: BorderStyle.Solid }).borderRadius(20).padding(2)
           }
-          .width('100%')
-          .padding({ left: 16, right: 16, top: 16, bottom: 32 })
-          .backgroundColor('#0F1626')
+          .width('100%').padding({ left: 16, right: 16, top: 16, bottom: 32 }).backgroundColor('#0A1428')
         }
-        .layoutWeight(1)
-        .width('100%')
-        .scrollBar(BarState.Auto)
-        .edgeEffect(EdgeEffect.Spring)
-        .backgroundColor('#0B1220')
+        .layoutWeight(1).width('100%').scrollBar(BarState.Auto).edgeEffect(EdgeEffect.Spring)
       }
-      .width('100%')
-      .height('100%')
-      .backgroundColor('#081F37')
+      .width('100%').height('100%').backgroundColor('#081F37')
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     }
     .hideTitleBar(true)
     .onBackPressed(() => {
-      // 调用全局退出确认管理器
       if (ExitConfirmManager.handleBackPress()) {
-        // 拦截返回，显示提示
-        promptAction.showToast({
-          message: '再按一次退出应用',
-          duration: 2000,
-          bottom:500
-
-        })
-        return true  // 拦截
+        promptAction.showToast({ message: '再按一次退出应用', duration: 2000, bottom:500 });
+        return true;
       }
-      return false  // 允许退出
+      return false;
     })
   }
 }
