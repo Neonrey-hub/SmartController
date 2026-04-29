@@ -46,7 +46,7 @@ export struct ControlConsole {
       })
 
       // 状态指示器组
-      Row({ space: AppDimensions.SPACING_SM }) {
+      Row({ space: AppDimensions.SPACING_MD }) {
         StatusIndicator({
           name: '蜂鸣器',
           isEnabled: this.controlState.buzzerEnabled,
@@ -82,8 +82,9 @@ export struct ControlConsole {
         })
       }
       .width('100%')
+      .justifyContent(FlexAlign.Center)
 
-      Row({ space: AppDimensions.SPACING_SM }) {
+      Row({ space: AppDimensions.SPACING_MD }) {
         StatusIndicator({
           name: '黄灯',
           isEnabled: this.controlState.yellowLightEnabled,
@@ -118,6 +119,7 @@ export struct ControlConsole {
         })
       }
       .width('100%')
+      .justifyContent(FlexAlign.Center)
 
       // 滑块控件组
       Column({ space: AppDimensions.SPACING_MD }) {
@@ -163,10 +165,112 @@ export struct ControlConsole {
     // 同时更新 controlState 中的 selectedButton
     this.controlState.selectedButton = type;
 
+    // 根据模式执行不同的设备控制逻辑
+    switch (type) {
+      case ButtonType.DISPLAY:
+        this.setDisplayMode();
+        break;
+      case ButtonType.ALARM:
+        this.setAlarmMode();
+        break;
+      case ButtonType.MUTE:
+        this.setMuteMode();
+        break;
+    }
+
     console.log('After update, selectedButton:', this.selectedButton);
 
     if (this.onStateChange) {
       this.onStateChange(this.controlState);
     }
+  }
+
+  /**
+   * 设置展示模式：开启绿灯、黄灯、红灯
+   */
+  private setDisplayMode(): void {
+    // 开启所有灯光
+    this.controlDevice('绿灯', true, (enabled) => {
+      this.controlState.greenLightEnabled = enabled;
+    });
+    this.controlDevice('黄灯', true, (enabled) => {
+      this.controlState.yellowLightEnabled = enabled;
+    });
+    this.controlDevice('红灯', true, (enabled) => {
+      this.controlState.redLightEnabled = enabled;
+    });
+    
+    // 关闭蜂鸣器
+    this.controlDevice('蜂鸣器', false, (enabled) => {
+      this.controlState.buzzerEnabled = enabled;
+    });
+    
+    console.log('设置展示模式：开启所有灯光');
+  }
+
+  /**
+   * 设置告警模式：开启蜂鸣器和红灯，关闭其他设备
+   */
+  private setAlarmMode(): void {
+    // 开启蜂鸣器和红灯
+    this.controlDevice('蜂鸣器', true, (enabled) => {
+      this.controlState.buzzerEnabled = enabled;
+    });
+    this.controlDevice('红灯', true, (enabled) => {
+      this.controlState.redLightEnabled = enabled;
+    });
+    
+    // 关闭其他设备
+    this.controlDevice('绿灯', false, (enabled) => {
+      this.controlState.greenLightEnabled = enabled;
+    });
+    this.controlDevice('黄灯', false, (enabled) => {
+      this.controlState.yellowLightEnabled = enabled;
+    });
+    
+    console.log('设置告警模式：开启蜂鸣器和红灯');
+  }
+
+  /**
+   * 设置静音模式：关闭所有灯光和蜂鸣器
+   */
+  private setMuteMode(): void {
+    // 关闭所有设备
+    this.controlDevice('蜂鸣器', false, (enabled) => {
+      this.controlState.buzzerEnabled = enabled;
+    });
+    this.controlDevice('绿灯', false, (enabled) => {
+      this.controlState.greenLightEnabled = enabled;
+    });
+    this.controlDevice('黄灯', false, (enabled) => {
+      this.controlState.yellowLightEnabled = enabled;
+    });
+    this.controlDevice('红灯', false, (enabled) => {
+      this.controlState.redLightEnabled = enabled;
+    });
+    
+    console.log('设置静音模式：关闭所有设备');
+  }
+
+  /**
+   * 统一设备控制方法
+   * @param deviceName 设备名称（用于发送控制指令）
+   * @param enabled 目标状态（true=开启，false=关闭）
+   * @param updateState 状态更新回调
+   */
+  private controlDevice(deviceName: string, enabled: boolean, updateState: (enabled: boolean) => void): void {
+    const action = enabled ? '打开' : '关闭';
+    const command = `${action}${deviceName}`;
+    
+    // 发送控制指令
+    try {
+      network_connect.send(command);
+      console.log(`发送控制指令: ${command}`);
+    } catch (e) {
+      console.warn(`发送控制指令失败: ${command}`, e);
+    }
+    
+    // 更新本地状态
+    updateState(enabled);
   }
 }
