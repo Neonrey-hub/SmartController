@@ -1,5 +1,5 @@
 // entry/src/main/ets/pages/ChatPage.ets
-import { network_connect, WebSocket_connect } from "ets/pages/network_connect";
+import { network_connect, WebSocket_connect } from "ets/network/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { VoiceInputButton } from '../components/chat/VoiceInputButton'
@@ -61,6 +61,8 @@ export struct ChatPage {
                   }
                   .margin({ left: 40, right: 16, top: 6, bottom: 6 })
                 }
+                .width("100%")
+
               }
               // 服务器消息（左侧）
               else if (item[1] == "1") {
@@ -75,8 +77,11 @@ export struct ChatPage {
                   .margin({ left: 16, right: 40, top: 6, bottom: 6 })
                   Blank()
                 }
+                .width("100%")
+
               }
             }
+            .width("100%")
           })
         }
         .layoutWeight(1).width('100%').scrollBar(BarState.Auto).edgeEffect(EdgeEffect.Spring)

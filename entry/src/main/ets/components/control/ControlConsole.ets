@@ -12,12 +12,12 @@ import { cryptoFramework } from '@kit.CryptoArchitectureKit'
  * 设备联动控制台主容器组件
  * 整合了所有控制台子组件，提供完整的设备控制功能
  */
-@Component
+@ComponentV2
 export struct ControlConsole {
   /** 控制状态 */
-  @State controlState: ControlState = new ControlState();
+  @Local controlState: ControlState = new ControlState();
   /** 当前选中的按钮类型 - 独立状态以确保UI正确更新 */
-  @State selectedButton: ButtonType = ButtonType.DISPLAY;
+  @Local selectedButton: ButtonType = ButtonType.DISPLAY;
   /** 状态变化回调 */
   onStateChange?: (state: ControlState) => void;
 
@@ -140,7 +140,7 @@ export struct ControlConsole {
           value: this.controlState.smallLightBrightness,
           onValueChange: (value: number) => {
             curb_hardware.API_brightness(value)
-            this.controlState.smallLightBrightness = value;
+            this.controlState.change_smallLightBrightness(value);
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
             }

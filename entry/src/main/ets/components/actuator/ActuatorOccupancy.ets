@@ -3,17 +3,17 @@ import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 import { MetricCard } from './MetricCard'
 import { RingChart } from './RingChart'
-import { data_setting , setting} from "ets/network/get_data";
+import { data_setting,setting } from '../../network/get_data'
 
 /**
  * 执行器联动占用组件
  * 展示执行器参数指标、环形图和状态统计
  */
-@Component
+@ComponentV2
 export struct ActuatorOccupancy {
   /** 控制状态数据 */
-  @Prop controlState: ControlState = new ControlState();
-
+  @Local controlState: ControlState = new ControlState();
+  @Local data_setting:setting = data_setting
   build() {
     Column({ space: AppDimensions.SPACING_MD }) {
       // 标题行
@@ -38,7 +38,7 @@ export struct ActuatorOccupancy {
           MetricCard({
             title: '风扇转速',
             value: `${Math.round(this.controlState.fanSpeed)}%`,
-            subtitle: '目标值'
+            subtitle: '当前值'
           })
         }
         .layoutWeight(1)
