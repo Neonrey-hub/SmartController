@@ -36,9 +36,10 @@ interface Features {
 export class WebSocket_connect {
   private ws: webSocket.WebSocket | null = null;
   /*公网测试地址*/
-  @Trace ip:string = "119.29.15.120:8000"
-  //@Trace ip:string = "192.168.5.8:8000";
+  // @Trace ip:string = "119.29.15.120:8000"
+  @Trace ip:string = "192.168.99.11:8000";
   @Trace str_arr:string[][] = []
+  // @Trace data = {"success": true, "meta": {"updated_at": "2026-04-29T06:54:07.850050+00:00", "sensor_revision": 363331, "control_revision": 874, "state_file": "/opt/demo-real/modbus_real_state.json", "runtime": "real-device"}, "sensor": {"online": true, "values": [447.0, 0.114, 0.049, 5.0, 69.6, 19.752, 5.0, 4.0, 416.0, 33.88], "pretty": [{"tag": "二氧化碳", "value": 447.0, "unit": "ppm", "scale": 1}, {"tag": "TVOC总挥发物", "value": 0.114, "unit": "mg/m³", "scale": 0.001}, {"tag": "甲醛", "value": 0.049, "unit": "mg/m³", "scale": 0.001}, {"tag": "PM2.5", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "湿度", "value": 69.6, "unit": "%RH", "scale": 0.015}, {"tag": "温度", "value": 19.752, "unit": "℃", "scale": 0.008}, {"tag": "PM10", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "PM1.0", "value": 4.0, "unit": "μg/m³", "scale": 1}, {"tag": "光照度", "value": 416.0, "unit": "Lux", "scale": 1}, {"tag": "噪声", "value": 33.88, "unit": "dB", "scale": 0.01}], "updated_at": "2026-04-29T06:54:07.843355+00:00", "last_source": "real-bridge"}, "actuators": {"coils": {"buzzer": false, "green": false, "yellow": false, "red": false}, "coil_labels": {"buzzer": "蜂鸣器", "green": "绿灯", "yellow": "黄灯", "red": "红灯"}, "brightness_percent": 0.0, "fan_percent": 0.0, "updated_at": "2026-04-29T06:54:07.850025+00:00", "last_source": "real-bridge-readback"}}
   /**
    * [["你好","0"]，["1111","1"]] 0代表用户发送 1代表服务器发送
    */
@@ -54,6 +55,8 @@ export class WebSocket_connect {
   private isReconnecting: boolean = false;
   // 是否已注册 WiFi 监听
   private wifiListenerRegistered: boolean = false;
+  private connect_max = 5
+  private try_connect = 0
 
   /**
    * 获取设备 MAC（随机化地址）和 UUID，异步处理
@@ -198,6 +201,7 @@ export class WebSocket_connect {
     this.ws.on('message', (err, data ) => {
       if (err) {
         console.error('❌ 接收消息出错:', JSON.stringify(err));
+        this.state = false
         return;
       }
 
@@ -245,12 +249,19 @@ export class WebSocket_connect {
 
     this.ws.on('error', (err) => {
       console.error('❌ 异常:', JSON.stringify(err));
+      this.state = false;
+      if (this.try_connect <= this.connect_max) {
+        this.connect()
+        this.try_connect ++
+      }
     });
   }
 
   send(data: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
-      if (!(await this.check_connect())) {
+      this.try_connect = 0 //重置重连次数限制
+      if (!this.state) { //如果当前未连接,触发重连
+        this.connect()
         return
       }
       if (data.length == 0) {
@@ -283,15 +294,6 @@ export class WebSocket_connect {
     });
   }
 
-  async check_connect(): Promise<boolean> {
-    if (!this.ws) {
-      this.connect()
-      console.log("debug debug 重连")
-    }else {
-      return true
-    }
-    return false
-  }
 
   close() {
     this.state = false

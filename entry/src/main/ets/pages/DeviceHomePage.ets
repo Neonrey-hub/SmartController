@@ -30,7 +30,7 @@ export struct DeviceHomePage {
     // 初始化更新时间
     this.updateTime = DateUtils.getCurrentDateTime();
     // 每次进入页面主动检测一次连接状态，WiFi 断开后重连场景下可快速恢复
-    network_connect.reconnect();
+    // network_connect.reconnect();
   }
 
   build() {
