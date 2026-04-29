@@ -265,8 +265,7 @@ export class WebSocket_connect {
       data_setting.fetchSensorData()
       this.try_connect = 0 //重置重连次数限制
       if (!this.state) { //如果当前未连接,触发重连
-        this.connect()
-        return
+        await this.connect()
       }
       if (data.length == 0) {
         return

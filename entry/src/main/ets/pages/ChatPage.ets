@@ -5,6 +5,7 @@ import { DateUtils } from '../utils/DateUtils'
 import { network_connect , WebSocket_connect} from "ets/pages/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
+import { data_setting , setting} from "ets/pages/get_data";
 
 /**
  * 对话页面：承载语音交互对话功能
@@ -12,6 +13,8 @@ import { ExitConfirmManager } from '../common/Constants'
 @ComponentV2
 export struct ChatPage {
   @Local network_connect: WebSocket_connect = network_connect;
+  @Local data_setting: setting = data_setting;
+
   /** 对话消息列表 */
    @Local  messages: ChatMessage[] = [
     { id: '1', type: 'system', content: '你好，我是智能助手', timestamp: DateUtils.getCurrentDateTime() }
