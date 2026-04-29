@@ -21,7 +21,7 @@ export struct ControlConsole {
   /** 当前选中的按钮类型 - 独立状态以确保UI正确更新 */
   @Local selectedButton: ButtonType = ButtonType.DISPLAY;
   /** 状态变化回调 */
-  @Local isstatus:number = 0
+  @Local isstatus:number[] = [0,0,0,0]
   onStateChange?: (state: ControlState) => void;
 
   aboutToAppear() {
@@ -54,10 +54,10 @@ export struct ControlConsole {
       Row({ space: AppDimensions.SPACING_MD }) {
         StatusIndicator({
           name: '蜂鸣器',
-          isEnabled: (this.isstatus == 0 ? data_setting.get_data.actuators.coils.buzzer : this.controlState.buzzerEnabled),
+          isEnabled: (this.isstatus[0] == 0 ? data_setting.get_data.actuators.coils.buzzer : this.controlState.buzzerEnabled),
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
-            this.isstatus = 1
+            this.isstatus[0] = 1
             if (enabled) {
               curb_hardware.check_buzzer(true)
               // network_connect.send("打开蜂鸣器")
@@ -74,10 +74,10 @@ export struct ControlConsole {
         })
         StatusIndicator({
           name: '绿灯',
-          isEnabled: (this.isstatus == 0 ? data_setting.get_data.actuators.coils.green : this.controlState.greenLightEnabled),
+          isEnabled: (this.isstatus[1] == 0 ? data_setting.get_data.actuators.coils.green : this.controlState.greenLightEnabled),
           color: AppColors.SUCCESS,
           onToggle: (enabled: boolean) => {
-            this.isstatus = 1
+            this.isstatus[1] = 1
             if (enabled) {
               // network_connect.send("打开绿灯")
               curb_hardware.check_green(true)
@@ -100,10 +100,10 @@ export struct ControlConsole {
       Row({ space: AppDimensions.SPACING_MD }) {
         StatusIndicator({
           name: '黄灯',
-          isEnabled: (this.isstatus == 0 ? data_setting.get_data.actuators.coils.yellow : this.controlState.yellowLightEnabled),
+          isEnabled: (this.isstatus[2] == 0 ? data_setting.get_data.actuators.coils.yellow : this.controlState.yellowLightEnabled),
           color: AppColors.WARNING,
           onToggle: (enabled: boolean) => {
-            this.isstatus = 1
+            this.isstatus[2] = 1
             if (enabled) {
               curb_hardware.check_yellow(true)
               // network_connect.send("打开黄灯")
@@ -120,10 +120,10 @@ export struct ControlConsole {
         })
         StatusIndicator({
           name: '红灯',
-          isEnabled: (this.isstatus == 0 ? data_setting.get_data.actuators.coils.red : this.controlState.redLightEnabled),
+          isEnabled: (this.isstatus[3] == 0 ? data_setting.get_data.actuators.coils.red : this.controlState.redLightEnabled),
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
-            this.isstatus = 1
+            this.isstatus[3] = 1
             if (enabled) {
               curb_hardware.check_red(true)
               // network_connect.send("打开红灯")
