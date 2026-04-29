@@ -3,7 +3,7 @@ import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 import { MetricCard } from './MetricCard'
 import { RingChart } from './RingChart'
-import { data_setting , setting} from "ets/pages/get_data";
+import { data_setting , setting} from "ets/network/get_data";
 
 /**
  * 执行器联动占用组件

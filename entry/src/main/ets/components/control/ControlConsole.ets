@@ -4,7 +4,7 @@ import { AppDimensions } from '../../constants/AppDimensions'
 import { ControlButtons } from './ControlButtons'
 import { StatusIndicator } from './StatusIndicator'
 import { ControlSlider } from './ControlSlider'
-import { network_connect } from "ets/pages/network_connect";
+import { network_connect } from "ets/network/network_connect";
 
 /**
  * 设备联动控制台主容器组件

@@ -2,7 +2,7 @@ import { webSocket } from '@kit.NetworkKit';
 import { BusinessError } from '@ohos.base';
 import wifiManager from '@ohos.wifiManager';
 import { util } from '@kit.ArkTS';
-import { data_setting , setting} from "ets/pages/get_data";
+import { data_setting , setting} from "ets/network/get_data";
 
 
 

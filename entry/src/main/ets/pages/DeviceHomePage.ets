@@ -5,10 +5,10 @@ import { ActuatorOccupancy } from '../components/actuator/ActuatorOccupancy'
 import { EventLog, EventLogItem } from '../components/log/EventLog'
 import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 import { DateUtils } from '../utils/DateUtils'
-import { network_connect  , WebSocket_connect} from "ets/pages/network_connect";
+import { network_connect  , WebSocket_connect} from "ets/network/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
-import { data_setting , setting} from "ets/pages/get_data";
+import { data_setting , setting} from "ets/network/get_data";
 
 @ComponentV2
 export struct DeviceHomePage {
