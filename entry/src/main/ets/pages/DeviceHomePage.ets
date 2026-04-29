@@ -30,7 +30,6 @@ export struct DeviceHomePage {
   aboutToAppear() {
     if (this.initialized) return;
     this.initialized = true;
-
     this.updateTime = DateUtils.getCurrentDateTime();
     network_connect.reconnect();
     this.addLog('DataV 大屏已更新');
@@ -51,9 +50,7 @@ export struct DeviceHomePage {
 
   private getSensorItems(): SensorItem[] {
     const pretty = data_setting.get_data?.sensor?.pretty;
-    if (!pretty) {
-      return [];
-    }
+    if (!pretty) { return []; }
     const result: SensorItem[] = [];
     for (const item of pretty) {
       result.push({
@@ -65,10 +62,8 @@ export struct DeviceHomePage {
     return result;
   }
 
-  /** 添加事件日志，自动记录时间 */
   private addLog(message: string): void {
     const now = Date.now();
-    // 如果消息与上次完全相同且距上次不到2秒，则忽略
     if (message === this.lastLogMessage && (now - this.lastLogTime) < 2000) {
       return;
     }
@@ -92,11 +87,7 @@ export struct DeviceHomePage {
 
         Scroll() {
           Column({ space: 20 }) {
-            DeviceInfoCard({
-              deviceName: this.deviceName,
-              isOnline: network_connect.state,
-              updateTime: this.updateTime
-            })
+            DeviceInfoCard({ deviceName: this.deviceName, isOnline: network_connect.state, updateTime: this.updateTime })
 
             Column() {
               Row() {
