@@ -44,7 +44,7 @@ export struct DeviceHomePage {
                   .fontSize(12).fontColor(network_connect.state ? '#4ADE80' : '#EF4444')
               }
               .width('100%').padding({ top: 12, left: 16, right: 16 })
-              ControlConsole({ onStateChange: (state) => { console.log('控制台状态已更新'); } })
+              ControlConsole({})
             }
             .width('100%').backgroundColor('#121E3A').borderRadius(20).shadow({ radius: 12, color: '#00000040', offsetY: 4 })
 

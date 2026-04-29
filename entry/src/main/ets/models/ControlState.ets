@@ -25,31 +25,37 @@ export enum ButtonType {
 /**
  * 控制状态数据模型
  */
+@ObservedV2
 export class ControlState {
   /** 当前控制模式 */
-  controlMode: ControlMode = ControlMode.SCENE;
+  @Trace controlMode: ControlMode = ControlMode.SCENE;
   /** 当前选中的按钮 */
-  selectedButton: ButtonType = ButtonType.DISPLAY;
+  @Trace selectedButton: ButtonType = ButtonType.DISPLAY;
   /** 蜂鸣器状态 */
-  buzzerEnabled: boolean = false;
+  @Trace buzzerEnabled: boolean = false;
   /** 绿灯状态 */
-  greenLightEnabled: boolean = false;
+  @Trace greenLightEnabled: boolean = false;
   /** 黄灯状态 */
-  yellowLightEnabled: boolean = false;
+  @Trace yellowLightEnabled: boolean = false;
   /** 红灯状态 */
-  redLightEnabled: boolean = false;
+  @Trace redLightEnabled: boolean = false;
   /** 小灯亮度值 (0-100) */
-  smallLightBrightness: number = 51;
+  @Trace smallLightBrightness: number = 51;
   /** 风扇转速值 (0-100) */
-  fanSpeed: number = 53;
+  @Trace fanSpeed: number = 53;
 
   // ---- 执行器联动占用相关字段 ----
   /** 激活的执行器数量 */
-  actuatorActive: number = 0;
+  @Trace actuatorActive: number = 0;
   /** 执行器总数 */
-  actuatorTotal: number = 4;
+  @Trace actuatorTotal: number = 4;
   /** 联动占比 (0-100) */
-  linkageRatio: number = 0;
+  @Trace linkageRatio: number = 0;
+
+  change_smallLightBrightness(num:number){
+    this.smallLightBrightness = num
+    console.log(String(this.smallLightBrightness))
+  }
 
   constructor() {
     this.controlMode = ControlMode.SCENE;
@@ -65,3 +71,5 @@ export class ControlState {
     this.linkageRatio = 0;
   }
 }
+
+export const controlState = new ControlState()
