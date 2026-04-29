@@ -16,9 +16,9 @@ export struct ControlButtons {
 
   build() {
     Row({ space: AppDimensions.SPACING_MD }) {
-      this.ControlButton('展示模式', ButtonType.DISPLAY)
-      this.ControlButton('告警模式', ButtonType.ALARM)
       this.ControlButton('静音模式', ButtonType.MUTE)
+      this.ControlButton('告警模式', ButtonType.ALARM)
+      this.ControlButton('展示模式', ButtonType.DISPLAY)
     }
     .width('100%')
     .justifyContent(FlexAlign.SpaceBetween)

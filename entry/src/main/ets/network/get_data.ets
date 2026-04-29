@@ -52,10 +52,10 @@ export interface actuators{
 }
 
 export interface coils{
-  "buzzer": false,//蜂鸣器状态
-  "green": false,//绿灯状态
-  "yellow": false,//黄灯状态
-  "red": false//红灯状态
+  "buzzer": false,
+  "green": false,
+  "yellow": false,
+  "red": false
 }
 export interface coil_labels{
   "buzzer": "蜂鸣器",
