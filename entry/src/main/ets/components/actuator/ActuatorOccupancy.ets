@@ -58,8 +58,8 @@ export struct ActuatorOccupancy {
         Column({ space: AppDimensions.SPACING_SM }) {
           MetricCard({
             title: '激活执行器',
-            value: `${this.controlState.actuatorActive}/${this.controlState.actuatorTotal}`,
-            subtitle: '开关数量'
+            value: `${this.controlState.activeDeviceCount}/${this.controlState.actuatorTotal}`,
+            subtitle: '高亮按钮数'
           })
           MetricCard({
             title: '联动占比',
