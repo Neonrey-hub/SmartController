@@ -52,6 +52,19 @@ export class ControlState {
   /** 联动占比 (0-100) */
   @Trace linkageRatio: number = 0;
 
+  /**
+   * 计算高亮的设备按钮数量（蜂鸣器、绿灯、黄灯、红灯）
+   * @returns 开启的设备数量 (0-4)
+   */
+  get activeDeviceCount(): number {
+    let count = 0;
+    if (this.buzzerEnabled) count++;
+    if (this.greenLightEnabled) count++;
+    if (this.yellowLightEnabled) count++;
+    if (this.redLightEnabled) count++;
+    return count;
+  }
+
   change_smallLightBrightness(num:number){
     this.smallLightBrightness = num
     console.log(String(this.smallLightBrightness))

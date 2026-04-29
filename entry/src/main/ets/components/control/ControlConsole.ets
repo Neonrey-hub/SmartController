@@ -14,7 +14,7 @@ import { cryptoFramework } from '@kit.CryptoArchitectureKit'
  */
 @ComponentV2
 export struct ControlConsole {
-  /** 控制状态 */
+  /** 控制状态 - 从父组件传入 */
   @Local controlState: ControlState =  controlState;
   /** 当前选中的按钮类型 - 独立状态以确保UI正确更新 */
   @Local selectedButton: ButtonType = ButtonType.DISPLAY;
@@ -64,6 +64,7 @@ export struct ControlConsole {
             }
             console.log("debug debug 打开蜂鸣器",String(enabled))
             this.controlState.buzzerEnabled = enabled;
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
             }
@@ -82,6 +83,7 @@ export struct ControlConsole {
               curb_hardware.check_green(false)
             }
             this.controlState.greenLightEnabled = enabled;
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
             }
@@ -106,6 +108,7 @@ export struct ControlConsole {
               // network_connect.send("关闭黄灯")
             }
             this.controlState.yellowLightEnabled = enabled;
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
             }
@@ -124,6 +127,7 @@ export struct ControlConsole {
               // network_connect.send("关闭红灯")
             }
             this.controlState.redLightEnabled = enabled;
+            this.controlState.actuatorActive = this.controlState.activeDeviceCount;
             if (this.onStateChange) {
               this.onStateChange(this.controlState);
             }
@@ -219,6 +223,9 @@ export struct ControlConsole {
       this.controlState.buzzerEnabled = enabled;
     });
     
+    // 更新激活设备数量
+    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+    
     console.log('设置展示模式：开启所有灯光');
   }
 
@@ -242,6 +249,9 @@ export struct ControlConsole {
       this.controlState.yellowLightEnabled = enabled;
     });
     
+    // 更新激活设备数量
+    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
+    
     console.log('设置告警模式：开启蜂鸣器和红灯');
   }
 
@@ -262,6 +272,9 @@ export struct ControlConsole {
     this.controlDevice('红灯', false, (enabled) => {
       this.controlState.redLightEnabled = enabled;
     });
+    
+    // 更新激活设备数量
+    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
     
     console.log('设置静音模式：关闭所有设备');
   }
