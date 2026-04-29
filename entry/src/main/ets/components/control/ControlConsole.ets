@@ -8,6 +8,7 @@ import { network_connect } from "ets/network/network_connect";
 import { curb_hardware } from "ets/network/API_risc";
 import { cryptoFramework } from '@kit.CryptoArchitectureKit'
 
+
 /**
  * 设备联动控制台主容器组件
  * 整合了所有控制台子组件，提供完整的设备控制功能
