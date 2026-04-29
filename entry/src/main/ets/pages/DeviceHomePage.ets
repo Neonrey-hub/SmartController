@@ -8,6 +8,7 @@ import { DateUtils } from '../utils/DateUtils'
 import { network_connect } from "ets/pages/network_connect";
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
+import { data_setting , setting} from "ets/pages/get_data";
 
 @ComponentV2
 export struct DeviceHomePage {
