@@ -48,19 +48,28 @@ export struct AlarmQueue {
             .textAlign(TextAlign.Center)
             .padding({ top: AppDimensions.SPACING_MD, bottom: AppDimensions.SPACING_MD })
         } else {
-          ForEach(this.alarmItems, (item: AlarmItem) => {
-            Row() {
-              Text(item.message)
-                .fontSize(AppDimensions.FONT_SIZE_SM)
-                .fontColor(AppColors.TEXT_TERTIARY)
-                .layoutWeight(1)
+          Scroll() {
+            Column({ space: AppDimensions.SPACING_SM }) {
+              ForEach(this.alarmItems, (item: AlarmItem) => {
+                Row() {
+                  Text(item.message)
+                    .fontSize(AppDimensions.FONT_SIZE_SM)
+                    .fontColor(AppColors.TEXT_TERTIARY)
+                    .layoutWeight(1)
+                }
+                .width('100%')
+                .padding({ left: AppDimensions.SPACING_MD, right: AppDimensions.SPACING_MD, top: AppDimensions.SPACING_SM, bottom: AppDimensions.SPACING_SM })
+                .backgroundColor('#0D1B2A')
+                .borderRadius(AppDimensions.RADIUS_SM)
+                .border({ width: { left: 3 }, color: this.getLevelColor(item.level), style: BorderStyle.Solid })
+              }, (item: AlarmItem) => item.id)
             }
-            .width('100%')
-            .padding({ left: AppDimensions.SPACING_MD, right: AppDimensions.SPACING_MD, top: AppDimensions.SPACING_SM, bottom: AppDimensions.SPACING_SM })
-            .backgroundColor('#0D1B2A')
-            .borderRadius(AppDimensions.RADIUS_SM)
-            .border({ width: { left: 3 }, color: this.getLevelColor(item.level), style: BorderStyle.Solid })
-          }, (item: AlarmItem) => item.id)
+          }
+          .width('100%')
+          .height(120)
+          .scrollBar(BarState.On)
+          .scrollBarColor('#FFFFFF')
+          .edgeEffect(EdgeEffect.Spring)
         }
       }
       .width('100%')
