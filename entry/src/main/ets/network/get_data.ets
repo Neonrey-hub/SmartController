@@ -71,10 +71,11 @@ export class setting{
   // 定时器（类内部私有）
   private timerId: number | null = null;
   // 你要的风扇数据
-  public fanPercent: number = 0;
+  @Trace is_running: number = 0;
   //模拟数据
   @Trace get_data:ApiResponse = {"success": true, "meta": {"updated_at": "2026-04-29T06:54:07.850050+00:00", "sensor_revision": 363331, "control_revision": 874, "state_file": "/opt/demo-real/modbus_real_state.json", "runtime": "real-device"}, "sensor": {"online": true, "values": [447.0, 0.114, 0.049, 5.0, 69.6, 19.752, 5.0, 4.0, 416.0, 33.88], "pretty": [{"tag": "二氧化碳", "value": 447.0, "unit": "ppm", "scale": 1}, {"tag": "TVOC总挥发物", "value": 0.114, "unit": "mg/m³", "scale": 0.001}, {"tag": "甲醛", "value": 0.049, "unit": "mg/m³", "scale": 0.001}, {"tag": "PM2.5", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "湿度", "value": 69.6, "unit": "%RH", "scale": 0.015}, {"tag": "温度", "value": 19.752, "unit": "℃", "scale": 0.008}, {"tag": "PM10", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "PM1.0", "value": 4.0, "unit": "μg/m³", "scale": 1}, {"tag": "光照度", "value": 416.0, "unit": "Lux", "scale": 1}, {"tag": "噪声", "value": 33.88, "unit": "dB", "scale": 0.01}], "updated_at": "2026-04-29T06:54:07.843355+00:00", "last_source": "real-bridge"}, "actuators": {"coils": {"buzzer": false, "green": true, "yellow": false, "red": true}, "coil_labels": {"buzzer": "蜂鸣器", "green": "绿灯", "yellow": "黄灯", "red": "红灯"}, "brightness_percent": 0.0, "fan_percent": 0.0, "updated_at": "2026-04-29T06:54:07.850025+00:00", "last_source": "real-bridge-readback"}}
   constructor(){
+    this.check_running()
     this.startAutoSend()
   }
 
@@ -108,6 +109,7 @@ export class setting{
 
         console.log("请求成功");
         console.log("传感器数组数据：", this.get_data.sensor.pretty);
+        this.check_running()
         return this.get_data;
       } else {
         console.error("请求失败，状态码：", response.responseCode);
@@ -122,6 +124,16 @@ export class setting{
 
   change_coils_green(isenabled:boolean){
     this.get_data.actuators.coils.green = isenabled
+  }
+
+  check_running():number{
+    let num = 0
+    const values = Object.values(this.get_data.actuators.coils) as boolean[]
+    values.forEach(value => {
+      if (value)num++
+    })
+    this.is_running = num
+    return num
   }
 
   destroy() {
