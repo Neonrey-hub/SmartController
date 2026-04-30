@@ -6,20 +6,24 @@ import { ControlButtons } from './ControlButtons'
 import { StatusIndicator } from './StatusIndicator'
 import { ControlSlider } from './ControlSlider'
 import { curb_hardware } from "ets/network/API_risc"
+import { data_setting,setting } from "ets/network/get_data";
+
 
 @ComponentV2
 export struct ControlConsole {
+  @Local data_setting:setting = data_setting
   @Param controlState: ControlState = new ControlState();
   @Local selectedButton: ButtonType = this.controlState.selectedButton;
   @Param onLog?: (msg: string) => void = () => {};
+  @Local isstatus:number[] = [0,0,0,0]
 
   aboutToAppear() {
     this.selectedButton = this.controlState.selectedButton;
   }
 
   private updateActuatorStats(): void {
-    this.controlState.actuatorActive = this.controlState.activeDeviceCount;
-    this.controlState.linkageRatio = Math.round((this.controlState.activeDeviceCount / this.controlState.actuatorTotal) * 100);
+    this.controlState.actuatorActive = data_setting.check_running();
+    this.controlState.linkageRatio = Math.round((this.controlState.actuatorActive / this.controlState.actuatorTotal) * 100);
   }
 
   build() {
@@ -44,9 +48,10 @@ export struct ControlConsole {
       Row({ space: AppDimensions.SPACING_MD }) {
         StatusIndicator({
           name: '蜂鸣器',
-          isEnabled: this.controlState.buzzerEnabled,
+          isEnabled: (this.isstatus[0] == 0 ? data_setting.get_data.actuators.coils.buzzer : this.controlState.buzzerEnabled),
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
+            this.isstatus[0] = 1
             curb_hardware.check_buzzer(enabled);
             this.controlState.buzzerEnabled = enabled;
             this.updateActuatorStats();
@@ -55,9 +60,10 @@ export struct ControlConsole {
         })
         StatusIndicator({
           name: '绿灯',
-          isEnabled: this.controlState.greenLightEnabled,
+          isEnabled: (this.isstatus[1] == 0 ? data_setting.get_data.actuators.coils.green : this.controlState.greenLightEnabled),
           color: AppColors.SUCCESS,
           onToggle: (enabled: boolean) => {
+            this.isstatus[1] = 1
             curb_hardware.check_green(enabled);
             this.controlState.greenLightEnabled = enabled;
             this.updateActuatorStats();
@@ -71,9 +77,10 @@ export struct ControlConsole {
       Row({ space: AppDimensions.SPACING_MD }) {
         StatusIndicator({
           name: '黄灯',
-          isEnabled: this.controlState.yellowLightEnabled,
+          isEnabled: (this.isstatus[2] == 0 ? data_setting.get_data.actuators.coils.yellow : this.controlState.yellowLightEnabled),
           color: AppColors.WARNING,
           onToggle: (enabled: boolean) => {
+            this.isstatus[2] = 1
             curb_hardware.check_yellow(enabled);
             this.controlState.yellowLightEnabled = enabled;
             this.updateActuatorStats();
@@ -82,9 +89,10 @@ export struct ControlConsole {
         })
         StatusIndicator({
           name: '红灯',
-          isEnabled: this.controlState.redLightEnabled,
+          isEnabled: (this.isstatus[3] == 0 ? data_setting.get_data.actuators.coils.red : this.controlState.redLightEnabled),
           color: AppColors.ERROR,
           onToggle: (enabled: boolean) => {
+            this.isstatus[3] = 1
             curb_hardware.check_red(enabled);
             this.controlState.redLightEnabled = enabled;
             this.updateActuatorStats();

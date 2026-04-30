@@ -1,3 +1,4 @@
+import { setting,data_setting } from "ets/network/get_data";
 /**
  * 控制模式枚举
  */
@@ -79,9 +80,9 @@ export class ControlState {
     this.redLightEnabled = false;
     this.smallLightBrightness = 51;
     this.fanSpeed = 53;
-    this.actuatorActive = 0;
+    this.actuatorActive = data_setting.check_running();
     this.actuatorTotal = 4;
-    this.linkageRatio = 0;
+    this.linkageRatio = Math.round((data_setting.check_running() / this.actuatorTotal) * 100);
   }
 }
 

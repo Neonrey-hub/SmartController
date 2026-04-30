@@ -1,5 +1,7 @@
+import { setting,data_setting } from "ets/network/get_data";
 import http from '@ohos.net.http';
 import { BusinessError } from '@ohos.base';
+
 
 interface coils{"name":string,"enabled":boolean}
 interface brightness{"percent":number}
@@ -11,15 +13,19 @@ export class API{
 
   check_green(enabled:boolean){
     this.API_coils("green",enabled)
+    data_setting.get_data.actuators.coils.green = enabled
   }
   check_red(enabled:boolean){
     this.API_coils("red",enabled)
+    data_setting.get_data.actuators.coils.red = enabled
   }
   check_yellow(enabled:boolean){
     this.API_coils("yellow",enabled)
+    data_setting.get_data.actuators.coils.yellow = enabled
   }
   check_buzzer(enabled:boolean){
     this.API_coils("buzzer",enabled)
+    data_setting.get_data.actuators.coils.buzzer = enabled
   }
   API_coils(name:string,enabled:boolean){
     this.API_http(`{"name":"${name}","enabled":${enabled}}`,"/api/control/coil")
