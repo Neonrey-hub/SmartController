@@ -14,6 +14,7 @@ export struct VoiceInputButton {
   private context = getContext(this) as common.UIAbilityContext;
   private audioManager: AudioCaptureManager = new AudioCaptureManager();
   private asrManager: AsrWebSocketManager = new AsrWebSocketManager();
+  private timerId: number = -1;
 
   async aboutToAppear(): Promise<void> {
     this.permissionGranted = await PermissionManager.checkAndRequestPermissions(this.context);
@@ -23,6 +24,10 @@ export struct VoiceInputButton {
   }
 
   aboutToDisappear(): void {
+    if (this.timerId !== -1) {
+      clearTimeout(this.timerId);
+      this.timerId = -1;
+    }
     this.audioManager.release();
     this.asrManager.disconnect();
   }
@@ -72,11 +77,20 @@ export struct VoiceInputButton {
     try {
       this.recognizedText = '';
       this.statusText = '正在连接...';
+      this.timerId = setTimeout(() => {
+        this.statusText = '连接超时，请重试';
+        this.isRecording = false;
+        this.asrManager.disconnect();
+      }, 7000);
       await this.asrManager.connect();
+      clearTimeout(this.timerId);
+      this.timerId = -1;
       this.audioManager.start((audioData: ArrayBuffer) => {
         this.asrManager.sendAudio(audioData);
       });
     } catch (err) {
+      clearTimeout(this.timerId);
+      this.timerId = -1;
       this.statusText = `连接失败: ${JSON.stringify(err)}`;
     }
   }
