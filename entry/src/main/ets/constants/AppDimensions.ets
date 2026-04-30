@@ -19,12 +19,12 @@ export class AppDimensions {
   static readonly RADIUS_ROUND: number = 50;
 
   // 字体大小
-  static readonly FONT_SIZE_XS: number = 12;
-  static readonly FONT_SIZE_SM: number = 14;
-  static readonly FONT_SIZE_MD: number = 16;
-  static readonly FONT_SIZE_LG: number = 18;
-  static readonly FONT_SIZE_XL: number = 20;
-  static readonly FONT_SIZE_XXL: number = 28;
+  static readonly FONT_SIZE_XS: number = 11;
+  static readonly FONT_SIZE_SM: number = 13;
+  static readonly FONT_SIZE_MD: number = 15;
+  static readonly FONT_SIZE_LG: number = 17;
+  static readonly FONT_SIZE_XL: number = 19;
+  static readonly FONT_SIZE_XXL: number = 26;
 
   // 高度
   static readonly HEADER_HEIGHT: number = 56;

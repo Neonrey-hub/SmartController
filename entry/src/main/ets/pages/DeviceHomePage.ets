@@ -13,6 +13,8 @@ import { data_setting } from "ets/network/get_data";
 import { generateAlarms } from '../utils/AlarmUtils'
 import { SensorItem } from '../components/sensor/IndustrialSensorCard'
 
+let globalInitLogDone = false;
+
 @ComponentV2
 export struct DeviceHomePage {
   @Local network_connect: WebSocket_connect = network_connect
@@ -23,16 +25,14 @@ export struct DeviceHomePage {
   @Local controlState: ControlState = controlState;
 
   private timerId: number = -1;
-  private lastLogMessage: string = '';
-  private lastLogTime: number = 0;
-  private initialized: boolean = false;
 
   aboutToAppear() {
-    if (this.initialized) return;
-    this.initialized = true;
+    if (!globalInitLogDone) {
+      globalInitLogDone = true;
+      this.addLog('DataV 大屏已更新');
+    }
     this.updateTime = DateUtils.getCurrentDateTime();
     network_connect.reconnect();
-    this.addLog('DataV 大屏已更新');
     this.startAlarmAndLogUpdate();
   }
 
@@ -53,29 +53,19 @@ export struct DeviceHomePage {
     if (!pretty) { return []; }
     const result: SensorItem[] = [];
     for (const item of pretty) {
-      result.push({
-        name: item.tag,
-        value: item.value.toFixed(1),
-        unit: item.unit
-      })
+      result.push({ name: item.tag, value: item.value.toFixed(1), unit: item.unit });
     }
     return result;
   }
 
   private addLog(message: string): void {
-    const now = Date.now();
-    if (message === this.lastLogMessage && (now - this.lastLogTime) < 2000) {
-      return;
-    }
-    this.lastLogMessage = message;
-    this.lastLogTime = now;
-
-    const date = new Date();
-    const hh = date.getHours().toString().padStart(2, '0');
-    const mm = date.getMinutes().toString().padStart(2, '0');
-    const ss = date.getSeconds().toString().padStart(2, '0');
+    const now = new Date();
+    const hh = now.getHours().toString().padStart(2, '0');
+    const mm = now.getMinutes().toString().padStart(2, '0');
+    const ss = now.getSeconds().toString().padStart(2, '0');
     const time = `${hh}:${mm}:${ss}`;
-    const newItem: EventLogItem = { time: time, message: message };
+    const id = `${now.getTime()}_${Math.random().toString(36).substr(2, 6)}`;
+    const newItem: EventLogItem = { id: id, time: time, message: message };
     this.logItems = [newItem, ...this.logItems].slice(0, 20);
   }
 

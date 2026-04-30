@@ -3,6 +3,7 @@ import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 
 export interface EventLogItem {
+  id: string;
   time: string;
   message: string;
 }
@@ -18,7 +19,6 @@ export struct EventLog {
           .fontSize(AppDimensions.FONT_SIZE_MD)
           .fontWeight(FontWeight.Bold)
           .fontColor(AppColors.TEXT_SECONDARY)
-
         Text('控制回执与系统事件追踪')
           .fontSize(AppDimensions.FONT_SIZE_XS)
           .fontColor(AppColors.TEXT_DISABLED)
@@ -44,16 +44,11 @@ export struct EventLog {
                 .layoutWeight(1)
             }
             .width('100%')
-            .padding({
-              left: AppDimensions.SPACING_MD,
-              right: AppDimensions.SPACING_MD,
-              top: AppDimensions.SPACING_SM,
-              bottom: AppDimensions.SPACING_SM
-            })
+            .padding({ left: AppDimensions.SPACING_MD, right: AppDimensions.SPACING_MD, top: AppDimensions.SPACING_SM, bottom: AppDimensions.SPACING_SM })
             .backgroundColor('#0D1B2A')
             .borderRadius(AppDimensions.RADIUS_SM)
             .border({ width: { left: 3 }, color: AppColors.INFO, style: BorderStyle.Solid })
-          }, (item: EventLogItem, index: number) => index.toString())
+          }, (item: EventLogItem) => item.id)
         }
       }
       .width('100%')

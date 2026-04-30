@@ -8,10 +8,10 @@ export struct StatusIndicator {
   @Prop isEnabled: boolean = false;
   @Prop color: string = AppColors.TEXT_DISABLED;
   onToggle?: (enabled: boolean) => void;
+  private lastToggleTime: number = 0;
 
   build() {
     Row({ space: AppDimensions.SPACING_SM }) {
-      // 状态点，开启时发光
       Circle()
         .width(12).height(12)
         .fill(this.isEnabled ? this.color : AppColors.TEXT_DISABLED)
@@ -34,6 +34,12 @@ export struct StatusIndicator {
     .borderRadius(12)
     .borderWidth(1.5)
     .borderColor(this.isEnabled ? `${this.color}40` : '#2D3E50')
-    .onClick(() => { if (this.onToggle) this.onToggle(!this.isEnabled) })
+    .onClick(() => {
+      const now = Date.now();
+      if (now - this.lastToggleTime > 300) {
+        this.lastToggleTime = now;
+        if (this.onToggle) this.onToggle(!this.isEnabled);
+      }
+    })
   }
 }

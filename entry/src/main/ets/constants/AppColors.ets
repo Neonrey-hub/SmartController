@@ -5,7 +5,7 @@
 export class AppColors {
   // 主背景色
   static readonly PRIMARY_BG: string = '#0A1428';
-  static readonly SECONDARY_BG: string = '#0B1220';
+  static readonly SECONDARY_BG: string = '#081F37';
   static readonly CARD_BG: string = '#121E3A';
   static readonly HEADER_BG: string = '#081F37';
   static readonly CONTENT_BG: string = '#0F1626';
@@ -31,7 +31,7 @@ export class AppColors {
 
   // 滑块颜色
   static readonly SLIDER_TRACK: string = '#334155';
-  static readonly SLIDER_PROGRESS: string = '#3498DB';
+  static readonly SLIDER_PROGRESS: string = '#00e5ff';
   static readonly SLIDER_THUMB: string = '#FFFFFF';
 
   // 分隔线颜色
@@ -40,8 +40,16 @@ export class AppColors {
 
   // 圆环图颜色
   static readonly RING_BG: string = '#5D6D7E';
-  static readonly RING_ACTIVE: string = '#3498DB';
+  static readonly RING_ACTIVE: string = '#00e5ff';
 
   // 阴影颜色
   static readonly SHADOW_COLOR: string = 'rgba(0, 0, 0, 0.3)';
+
+  // 霓虹高亮色（新增）
+  static readonly NEON_CYAN: string = '#00e5ff';     // 青色 - 图片中大量使用
+  static readonly NEON_TEAL: string = '#19f5c1';    // 蓝绿色
+  static readonly NEON_YELLOW: string = '#ffd166';   // 黄色
+  static readonly NEON_RED: string = '#ff5b6e';      // 红色
+  static readonly NEON_ORANGE: string = '#ff8c42';   // 橙色
+  static readonly NEON_BLUE: string = '#4a90e2';     // 蓝色（按钮等）
 }

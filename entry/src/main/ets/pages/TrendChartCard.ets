@@ -1,5 +1,4 @@
 // entry/src/main/ets/pages/TrendChartCard.ets
-import { data_setting } from "ets/network/get_data"
 
 interface TrendSeriesItem {
   name: string
@@ -13,103 +12,102 @@ interface Point {
   y: number
 }
 
-interface SensorDataItem {
-  tag: string
-  value: number
+interface LegendItem {
+  name: string
+  color: string
 }
 
 @ComponentV2
 export struct TrendChartCard {
-  // 历史数据
-  private readonly co2History: number[] = []
-  private readonly tempHistory: number[] = []
-  private readonly humHistory: number[] = []
-  private readonly noiseHistory: number[] = []
+  // 历史数据队列
+  private co2History: number[] = []
+  private tempHistory: number[] = []
+  private humHistory: number[] = []
+  private noiseHistory: number[] = []
+  // 每个点对应的时间标签队列（存储格式化字符串）
+  private timeLabels: string[] = []
+
   // 画布尺寸
-  private canvasWidth: number = 340
-  private canvasHeight: number = 240
-  private paddingLeft: number = 50
-  private paddingRight: number = 50
-  private paddingTop: number = 20
-  private paddingBottom: number = 36
-  private canvasCtx: CanvasRenderingContext2D | null = null
-  private settings: RenderingContextSettings = new RenderingContextSettings(true)
-  private leftMax: number = 1200
-  private leftMin: number = 0
-  private rightMax: number = 80
-  private rightMin: number = 0
-  private leftLabels: number[] = [1200, 1000, 800, 600, 400, 200, 0]
-  private rightLabels: number[] = [80, 60, 40, 20, 0]
+  private readonly canvasWidth: number = 340
+  private readonly canvasHeight: number = 240
+  private readonly padLeft: number = 55
+  private readonly padRight: number = 45
+  private readonly padTop: number = 10
+  private readonly padBottom: number = 40   // 留出底部时间标签的空间
+
+  // 稳定上下文
+  private ctx: CanvasRenderingContext2D = new CanvasRenderingContext2D(new RenderingContextSettings(true))
+
+  // 坐标范围
+  private readonly leftMax: number = 1200
+  private readonly leftMin: number = 0
+  private readonly rightMax: number = 80
+  private readonly rightMin: number = 0
+  private readonly leftLabels: number[] = [1200, 1000, 800, 600, 400, 200, 0]
+  private readonly rightLabels: number[] = [80, 60, 40, 20, 0]
+
+  // 模拟数据
+  private simCo2: number = 600
+  private simTemp: number = 22
+  private simHum: number = 60
+  private simNoise: number = 50
+
   private timerId: number = -1
+  @Local refreshFlag: number = 0
 
   aboutToAppear(): void {
-    this.startUpdate()
+    // 填充初始12个点及其时间标签
+    for (let i = 0; i < 12; i++) {
+      this.addMockPoint()
+    }
+    this.timerId = setInterval(() => {
+      this.addMockPoint()
+      this.refreshFlag++
+    }, 1000)
   }
 
   aboutToDisappear(): void {
     clearInterval(this.timerId)
   }
 
-  private startUpdate(): void {
-    // 立即执行一次获取初始数据
-    this.fetchSensorData()
-    this.timerId = setInterval(() => {
-      this.fetchSensorData()
-      this.drawChart()
-    }, 1000)
-  }
+  /** 生成一个新数据点并记录当前时间 */
+  private addMockPoint(): void {
+    this.simCo2 = this.clamp(this.simCo2 + (Math.random() - 0.5) * 15, 400, 1200)
+    this.simTemp = this.clamp(this.simTemp + (Math.random() - 0.5) * 0.3, 16, 32)
+    this.simHum = this.clamp(this.simHum + (Math.random() - 0.5) * 1.0, 30, 75)
+    this.simNoise = this.clamp(this.simNoise + (Math.random() - 0.5) * 0.8, 35, 78)
 
-  private getSensorValue(pretty: SensorDataItem[], tag: string): number {
-    const found = pretty.find(item => item.tag === tag)
-    return found ? found.value : 0
-  }
+    this.co2History.push(this.simCo2)
+    this.tempHistory.push(this.simTemp)
+    this.humHistory.push(this.simHum)
+    this.noiseHistory.push(this.simNoise)
 
-  private pushValue(queue: number[], value: number): void {
-    queue.push(value)
-    if (queue.length > 12) {
-      queue.shift()
+    // 生成时间标签：HH:mm
+    const now = new Date()
+    const hh = now.getHours().toString().padStart(2, '0')
+    const mm = now.getMinutes().toString().padStart(2, '0')
+    this.timeLabels.push(`${hh}:${mm}`)
+
+    // 保持队列长度为12
+    if (this.co2History.length > 12) {
+      this.co2History.shift()
+      this.tempHistory.shift()
+      this.humHistory.shift()
+      this.noiseHistory.shift()
+      this.timeLabels.shift()
     }
   }
 
-  private fetchSensorData(): void {
-    const snap = data_setting.get_data?.sensor?.pretty
-    if (!snap || snap.length === 0) return
-    const co2 = this.getSensorValue(snap, '二氧化碳')
-    const temp = this.getSensorValue(snap, '温度')
-    const hum = this.getSensorValue(snap, '湿度')
-    const noise = this.getSensorValue(snap, '噪声')
-    this.pushValue(this.co2History, co2)
-    this.pushValue(this.tempHistory, temp)
-    this.pushValue(this.humHistory, hum)
-    this.pushValue(this.noiseHistory, noise)
+  private clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value))
   }
 
   private getSeriesList(): TrendSeriesItem[] {
     return [
-      {
-        name: 'CO₂',
-        color: '#20E5FF',
-        axis: 'left',
-        values: this.co2History
-      },
-      {
-        name: '温度',
-        color: '#2BE8C2',
-        axis: 'right',
-        values: this.tempHistory
-      },
-      {
-        name: '湿度',
-        color: '#F4C84F',
-        axis: 'right',
-        values: this.humHistory
-      },
-      {
-        name: '噪声',
-        color: '#FF5A76',
-        axis: 'right',
-        values: this.noiseHistory
-      }
+      { name: 'CO₂', color: '#20E5FF', axis: 'left', values: this.co2History },
+      { name: '温度', color: '#2BE8C2', axis: 'right', values: this.tempHistory },
+      { name: '湿度', color: '#F4C84F', axis: 'right', values: this.humHistory },
+      { name: '噪声', color: '#FF5A76', axis: 'right', values: this.noiseHistory }
     ]
   }
 
@@ -122,20 +120,18 @@ export struct TrendChartCard {
   }
 
   private drawChart(): void {
-    const ctx = this.canvasCtx
+    const ctx = this.ctx
     if (!ctx) return
-
-    // 如果没有任何数据，不绘制
-    if (this.co2History.length === 0 && this.tempHistory.length === 0) return
+    if (this.co2History.length < 2) return
 
     const width = this.canvasWidth
     const height = this.canvasHeight
     ctx.clearRect(0, 0, width, height)
 
-    const left = this.paddingLeft
-    const right = width - this.paddingRight
-    const top = this.paddingTop
-    const bottom = height - this.paddingBottom
+    const left = this.padLeft
+    const right = width - this.padRight
+    const top = this.padTop
+    const bottom = height - this.padBottom
     const plotWidth = right - left
     const plotHeight = bottom - top
 
@@ -149,9 +145,9 @@ export struct TrendChartCard {
     // 网格线 + 左轴标签
     ctx.textAlign = 'right'
     ctx.textBaseline = 'middle'
-    ctx.font = '10px sans-serif'
+    ctx.font = '9px sans-serif'
     ctx.fillStyle = '#5D839C'
-    ctx.strokeStyle = '#1A4468'
+    ctx.strokeStyle = 'rgba(26, 68, 104, 0.6)'
     ctx.lineWidth = 0.8
 
     for (let i = 0; i < this.leftLabels.length; i++) {
@@ -160,19 +156,19 @@ export struct TrendChartCard {
       ctx.moveTo(left, y)
       ctx.lineTo(right, y)
       ctx.stroke()
-      ctx.fillText(this.leftLabels[i].toString(), left - 8, y)
+      ctx.fillText(this.leftLabels[i].toString(), left - 6, y)
     }
 
     // 右轴标签
     ctx.textAlign = 'left'
     for (let i = 0; i < this.rightLabels.length; i++) {
       const y = top + (plotHeight / (this.rightLabels.length - 1)) * i
-      ctx.fillText(this.rightLabels[i].toString(), right + 8, y)
+      ctx.fillText(this.rightLabels[i].toString(), right + 6, y)
     }
 
     // 边框
-    ctx.strokeStyle = '#2D5D85'
-    ctx.lineWidth = 1.2
+    ctx.strokeStyle = 'rgba(45, 93, 133, 0.8)'
+    ctx.lineWidth = 1.0
     ctx.beginPath()
     ctx.moveTo(left, top)
     ctx.lineTo(left, bottom)
@@ -180,14 +176,17 @@ export struct TrendChartCard {
     ctx.lineTo(right, top)
     ctx.stroke()
 
-    // 折线
+    // 绘制曲线
     const seriesList = this.getSeriesList()
     for (const series of seriesList) {
       this.drawSeries(ctx, series, left, top, plotWidth, plotHeight)
     }
 
-    // 图例
-    this.drawLegend(ctx, right - 10, top + 8)
+    // 绘制图例（右上角）
+    this.drawLegend(ctx, right - 3, top + 8)
+
+    // 绘制横轴时间标签（底部）
+    this.drawTimeLabels(ctx, left, bottom, plotWidth)
   }
 
   private drawSeries(ctx: CanvasRenderingContext2D, series: TrendSeriesItem,
@@ -214,7 +213,7 @@ export struct TrendChartCard {
     ctx.closePath()
 
     const fillGradient = ctx.createLinearGradient(0, plotTop, 0, plotTop + plotHeight)
-    fillGradient.addColorStop(0, series.color + '40')
+    fillGradient.addColorStop(0, series.color + '30')
     fillGradient.addColorStop(1, series.color + '00')
     ctx.fillStyle = fillGradient
     ctx.fill()
@@ -222,7 +221,7 @@ export struct TrendChartCard {
     // 折线
     ctx.beginPath()
     ctx.strokeStyle = series.color
-    ctx.lineWidth = 2.5
+    ctx.lineWidth = 2.0
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
     ctx.moveTo(points[0].x, points[0].y)
@@ -231,100 +230,87 @@ export struct TrendChartCard {
     }
     ctx.stroke()
 
-    // 圆点
+    // 数据点
     for (const p of points) {
       ctx.beginPath()
-      ctx.arc(p.x, p.y, 3.5, 0, 2 * Math.PI)
+      ctx.arc(p.x, p.y, 2.5, 0, 2 * Math.PI)
       ctx.fillStyle = series.color
       ctx.fill()
     }
   }
 
   private drawLegend(ctx: CanvasRenderingContext2D, startX: number, startY: number): void {
-    const itemHeight = 18
-    const spacing = 10
-    const itemWidth = 45
-    let y = startY + 12
-
-    const legendX = startX - (itemWidth + 20)
-    const legendWidth = itemWidth + 20
-    const legendHeight = this.getSeriesList().length * (itemHeight + spacing) + 16
-
-    ctx.beginPath()
-    this.drawRoundedRect(ctx, legendX, startY, legendWidth, legendHeight, 4)
-    ctx.fillStyle = '#071F36B0'
-    ctx.fill()
-    ctx.strokeStyle = '#2D5D85'
-    ctx.lineWidth = 0.6
-    ctx.stroke()
-
-    ctx.font = '10px sans-serif'
+    const items: LegendItem[] = [
+      { name: 'CO₂', color: '#20E5FF' },
+      { name: '温度', color: '#2BE8C2' },
+      { name: '湿度', color: '#F4C84F' },
+      { name: '噪声', color: '#FF5A76' }
+    ]
+    ctx.font = '9px sans-serif'
     ctx.textBaseline = 'middle'
-    for (const series of this.getSeriesList()) {
-      ctx.fillStyle = series.color
-      ctx.fillRect(legendX + 10, y + 2, 10, 4)
+    let y = startY + 10
+    const x = startX - 45
+    for (const item of items) {
+      ctx.fillStyle = item.color
+      ctx.fillRect(x, y - 1, 10, 3)
       ctx.fillStyle = '#B0C4D8'
       ctx.textAlign = 'left'
-      ctx.fillText(series.name, legendX + 24, y + 4)
-      y += itemHeight + spacing
+      ctx.fillText(item.name, x + 13, y)
+      y += 14
     }
   }
 
-  private drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
-    ctx.moveTo(x + r, y)
-    ctx.lineTo(x + w - r, y)
-    ctx.arcTo(x + w, y, x + w, y + r, r)
-    ctx.lineTo(x + w, y + h - r)
-    ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
-    ctx.lineTo(x + r, y + h)
-    ctx.arcTo(x, y + h, x, y + h - r, r)
-    ctx.lineTo(x, y + r)
-    ctx.arcTo(x, y, x + r, y, r)
-    ctx.closePath()
+  /** 绘制横轴时间标签 */
+  private drawTimeLabels(ctx: CanvasRenderingContext2D, plotLeft: number, plotBottom: number, plotWidth: number): void {
+    const labels = this.timeLabels
+    if (labels.length < 2) return
+
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'top'
+    ctx.font = '9px sans-serif'
+    ctx.fillStyle = '#7B93A8'
+
+    const segment = plotWidth / (labels.length - 1)
+    // 每隔一个点绘制一个标签，避免重叠
+    for (let i = 0; i < labels.length; i += 1) {
+      const x = plotLeft + segment * i
+      ctx.fillText(labels[i], x, plotBottom + 2)
+    }
   }
 
   build() {
     Column() {
       Row() {
-        Text('趋势图')
+        Text('关键指标趋势')
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
           .fontColor('#E0E6F0')
         Blank()
-        Text('最近12个采样点')
-          .fontSize(12)
+        Text('实时趋势 · 12点滚动')
+          .fontSize(11)
           .fontColor('#5D6D7E')
       }
       .width('100%')
-      .padding({
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: 8
-      })
+      .padding({ left: 12, right: 12, top: 12, bottom: 4 })
       .alignItems(VerticalAlign.Center)
 
       Stack() {
-        Canvas(new CanvasRenderingContext2D(this.settings))
+        Canvas(this.ctx)
           .width(this.canvasWidth)
           .height(this.canvasHeight)
           .onReady(() => {
-            this.canvasCtx = new CanvasRenderingContext2D(this.settings)
             this.drawChart()
           })
       }
       .width(this.canvasWidth)
       .height(this.canvasHeight)
     }
-    .width(this.canvasWidth + 32)
+    .width(this.canvasWidth + 24)
     .borderRadius(16)
-    .border({ width: 1, color: '#143556' })
-    .linearGradient({
-      angle: 170,
-      colors: [['#04203D', 0], ['#052B4B', 1]]
-    })
-    .shadow({ radius: 12, color: '#00000040', offsetY: 4 })
-    .padding({ bottom: 12 })
+    .backgroundColor('rgba(18, 30, 58, 0.75)')
+    .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
+    .shadow({ radius: 14, color: 'rgba(0, 0, 0, 0.45)', offsetY: 6 })
+    .padding({ bottom: 8 })
     .alignItems(HorizontalAlign.Center)
   }
 }

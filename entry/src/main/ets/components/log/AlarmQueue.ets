@@ -19,13 +19,9 @@ export struct AlarmQueue {
   @Param alarmItems: AlarmItem[] = [];
 
   private getLevelColor(level: AlarmLevel): string {
-    if (level === AlarmLevel.CRITICAL) {
-      return AppColors.ERROR;
-    } else if (level === AlarmLevel.WARNING) {
-      return AppColors.WARNING;
-    } else {
-      return AppColors.INFO;
-    }
+    if (level === AlarmLevel.CRITICAL) return AppColors.ERROR;
+    else if (level === AlarmLevel.WARNING) return AppColors.WARNING;
+    else return AppColors.INFO;
   }
 
   build() {
@@ -35,7 +31,6 @@ export struct AlarmQueue {
           .fontSize(AppDimensions.FONT_SIZE_MD)
           .fontWeight(FontWeight.Bold)
           .fontColor(AppColors.TEXT_SECONDARY)
-
         Text('数值触发与联动事件')
           .fontSize(AppDimensions.FONT_SIZE_XS)
           .fontColor(AppColors.TEXT_DISABLED)
@@ -61,12 +56,7 @@ export struct AlarmQueue {
                 .layoutWeight(1)
             }
             .width('100%')
-            .padding({
-              left: AppDimensions.SPACING_MD,
-              right: AppDimensions.SPACING_MD,
-              top: AppDimensions.SPACING_SM,
-              bottom: AppDimensions.SPACING_SM
-            })
+            .padding({ left: AppDimensions.SPACING_MD, right: AppDimensions.SPACING_MD, top: AppDimensions.SPACING_SM, bottom: AppDimensions.SPACING_SM })
             .backgroundColor('#0D1B2A')
             .borderRadius(AppDimensions.RADIUS_SM)
             .border({ width: { left: 3 }, color: this.getLevelColor(item.level), style: BorderStyle.Solid })

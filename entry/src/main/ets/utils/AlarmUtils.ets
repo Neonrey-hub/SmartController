@@ -2,7 +2,6 @@
 import { SensorItem } from '../components/sensor/IndustrialSensorCard'
 import { AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 
-/** 告警规则条目 */
 interface AlarmRuleItem {
   warn?: number
   err?: number
@@ -12,32 +11,27 @@ interface AlarmRuleItem {
   errHigh?: number
 }
 
-/**
- * 根据传感器列表生成告警条目
- */
 export function generateAlarms(sensorItems: SensorItem[]): AlarmItem[] {
   const alarms: AlarmItem[] = []
   let id = 0
+
+  const ruleMap = new Map<string, AlarmRuleItem>([
+    ['二氧化碳', { warn: 900, err: 1100 }],
+    ['PM2.5', { warn: 0.5, err: 10 }],
+    ['PM10', { warn: 100, err: 150 }],
+    ['总挥发物', { warn: 1.2, err: 1.6 }],
+    ['温度', { warnLow: 20, warnHigh: 21, errLow: 19, errHigh: 22 }],
+    ['湿度', { warnLow: 35, warnHigh: 70, errLow: 30, errHigh: 75 }],
+    ['甲醛', { warn: 0.001, err: 0.01 }],
+    ['一氧化碳', { warn: 3, err: 6 }],
+    ['臭氧', { warn: 0.2, err: 0.35 }],
+    ['噪声', { warn: 65, err: 72 }]
+  ])
 
   sensorItems.forEach(item => {
     const value = parseFloat(item.value)
     const name = item.name
     const unit = item.unit
-
-    // 定义告警规则映射
-    const ruleMap = new Map<string, AlarmRuleItem>([
-      ['二氧化碳', { warn: 900, err: 1100 }],
-      ['PM2.5', { warn: 50, err: 80 }],
-      ['PM10', { warn: 100, err: 150 }],
-      ['总挥发物', { warn: 1.2, err: 1.6 }],
-      ['温度', { warnLow: 18, warnHigh: 28, errLow: 16, errHigh: 30 }],
-      ['湿度', { warnLow: 35, warnHigh: 70, errLow: 30, errHigh: 75 }],
-      ['甲醛', { warn: 0.08, err: 0.15 }],
-      ['一氧化碳', { warn: 3, err: 6 }],
-      ['臭氧', { warn: 0.2, err: 0.35 }],
-      ['噪声', { warn: 65, err: 72 }]
-    ])
-
     const rule = ruleMap.get(name)
     if (!rule) return
 
@@ -64,11 +58,11 @@ export function generateAlarms(sensorItems: SensorItem[]): AlarmItem[] {
     }
 
     if (level !== AlarmLevel.INFO) {
-      alarms.push({ id: `${id++}`, message, level })
+      alarms.push({ id: `alarm_${id++}`, message, level })
     }
   })
 
-  // 按严重程度排序，最多取2条
+  // 按严重程度排序，最多取5条
   alarms.sort((a, b) => {
     let pa = 0, pb = 0
     if (a.level === AlarmLevel.CRITICAL) pa = 3
@@ -79,5 +73,5 @@ export function generateAlarms(sensorItems: SensorItem[]): AlarmItem[] {
     else pb = 1
     return pb - pa
   })
-  return alarms.slice(0, 2)
+  return alarms.slice(0, 5)
 }
