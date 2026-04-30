@@ -152,6 +152,7 @@ export struct ControlConsole {
         curb_hardware.check_green(true);
         curb_hardware.check_yellow(true);
         curb_hardware.check_red(true);
+        this.isstatus = [1,1,1,1]
         this.onLog?.('展示模式已应用');
         break;
       case ButtonType.ALARM:
@@ -164,6 +165,7 @@ export struct ControlConsole {
         curb_hardware.check_yellow(false);
         curb_hardware.check_red(true);
         this.onLog?.('告警模式已应用');
+        this.isstatus = [1,1,1,1]
         break;
       case ButtonType.MUTE:
         this.controlState.buzzerEnabled = false;
@@ -175,6 +177,7 @@ export struct ControlConsole {
         curb_hardware.check_yellow(false);
         curb_hardware.check_red(false);
         this.onLog?.('静音模式已应用');
+        this.isstatus = [1,1,1,1]
         break;
     }
     this.updateActuatorStats();
