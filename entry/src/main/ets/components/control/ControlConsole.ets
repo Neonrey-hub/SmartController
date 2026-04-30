@@ -41,7 +41,7 @@ export struct ControlConsole {
         }
       })
 
-      Row({ space: AppDimensions.SPACING_MD }) {
+      Row({ space: 48 }) {
         StatusIndicator({
           name: '蜂鸣器',
           isEnabled: this.controlState.buzzerEnabled,
@@ -68,7 +68,7 @@ export struct ControlConsole {
       .width('100%')
       .justifyContent(FlexAlign.Center)
 
-      Row({ space: AppDimensions.SPACING_MD }) {
+      Row({ space: 48 }) {
         StatusIndicator({
           name: '黄灯',
           isEnabled: this.controlState.yellowLightEnabled,
