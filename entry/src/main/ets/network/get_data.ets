@@ -87,7 +87,10 @@ export class setting{
 
     // 核心：每隔 1 秒执行一次请求
     this.timerId = setInterval(() => {
-      this.fetchSensorData();
+      // this.fetchSensorData();
+      for (let i = 0; i < this.get_data.sensor.pretty.length; i++) {
+        this.get_data.sensor.pretty[i].value = Math.random()*100
+      }
     }, 1000);
   }
   async fetchSensorData(): Promise<ApiResponse | null> {
