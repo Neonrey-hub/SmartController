@@ -65,7 +65,7 @@ export struct EventLog {
     .width('100%')
     .padding(AppDimensions.SPACING_LG)
     .backgroundColor(AppColors.CARD_BG)
-    .borderRadius(AppDimensions.RADIUS_LG)
+    .borderRadius(20)
     .border({ width: 2, color: '#1E3A5F', style: BorderStyle.Solid })
   }
 }
