@@ -7,20 +7,21 @@ import { AlarmQueue, AlarmItem } from '../components/log/AlarmQueue'
 import { DateUtils } from '../utils/DateUtils'
 import { ControlState, controlState } from '../models/ControlState'
 import { network_connect, WebSocket_connect } from "ets/network/network_connect";
-import { promptAction } from '@kit.ArkUI'
+import { promptAction} from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { data_setting } from "ets/network/get_data";
 import { generateAlarms } from '../utils/AlarmUtils'
 import { SensorItem } from '../components/sensor/IndustrialSensorCard'
 
 let globalInitLogDone = false;
+let globalEventLogs: EventLogItem[] = [];
 
 @ComponentV2
 export struct DeviceHomePage {
   @Local network_connect: WebSocket_connect = network_connect
   @Local deviceName: string = 'SmartController';
   @Local updateTime: string = '';
-  @Local logItems: EventLogItem[] = [];
+  @Local logItems: EventLogItem[] = globalEventLogs;
   @Local alarmItems: AlarmItem[] = [];
   @Local controlState: ControlState = controlState;
 
@@ -66,7 +67,8 @@ export struct DeviceHomePage {
     const time = `${hh}:${mm}:${ss}`;
     const id = `${now.getTime()}_${Math.random().toString(36).substr(2, 6)}`;
     const newItem: EventLogItem = { id: id, time: time, message: message };
-    this.logItems = [newItem, ...this.logItems].slice(0, 20);
+    globalEventLogs = [newItem, ...globalEventLogs].slice(0, 20);
+    this.logItems = globalEventLogs;
   }
 
   build() {
