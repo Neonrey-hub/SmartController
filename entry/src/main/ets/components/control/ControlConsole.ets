@@ -108,24 +108,24 @@ export struct ControlConsole {
           label: '小灯亮度',
           value: this.controlState.smallLightBrightness,
           onValueChange: (value: number) => {
-            if (value !== this.controlState.smallLightBrightness) {
-              this.onLog?.(`小灯亮度 设置为 ${Math.round(value)}%`);
-            }
             curb_hardware.API_brightness(value);
             this.controlState.change_smallLightBrightness(value);
             this.updateActuatorStats();
+          },
+          onChangeEnd: (value: number) => {
+            this.onLog?.(`小灯亮度 设置为 ${Math.round(value)}%`);
           }
         })
         ControlSlider({
           label: '风扇转速',
           value: this.controlState.fanSpeed,
           onValueChange: (value: number) => {
-            if (value !== this.controlState.fanSpeed) {
-              this.onLog?.(`风扇转速 设置为 ${Math.round(value)}%`);
-            }
             curb_hardware.API_fan(value);
             this.controlState.fanSpeed = value;
             this.updateActuatorStats();
+          },
+          onChangeEnd: (value: number) => {
+            this.onLog?.(`风扇转速 设置为 ${Math.round(value)}%`);
           }
         })
       }

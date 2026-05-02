@@ -11,8 +11,10 @@ export struct ControlSlider {
   @Prop label: string = '';
   /** 当前值 (0-100) */
   @Prop value: number = 0;
-  /** 值变化回调 */
+  /** 值变化回调（拖动中） */
   onValueChange?: (value: number) => void;
+  /** 值变化结束回调（松开滑块时） */
+  onChangeEnd?: (value: number) => void;
 
   build() {
     Row({ space: AppDimensions.SPACING_MD }) {
@@ -36,9 +38,16 @@ export struct ControlSlider {
         .trackThickness(AppDimensions.SLIDER_HEIGHT)
         .blockSize({ width: AppDimensions.SLIDER_THUMB_SIZE, height: AppDimensions.SLIDER_THUMB_SIZE })
         .layoutWeight(1)
-        .onChange((value: number) => {
-          if (this.onValueChange) {
-            this.onValueChange(value);
+        //双回调
+        .onChange((value: number, mode: SliderChangeMode) => {
+          if (mode === SliderChangeMode.End) {
+            if (this.onChangeEnd) {
+              this.onChangeEnd(value);
+            }
+          } else {
+            if (this.onValueChange) {
+              this.onValueChange(value);
+            }
           }
         })
 
