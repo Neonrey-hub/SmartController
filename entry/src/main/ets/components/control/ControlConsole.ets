@@ -11,7 +11,7 @@ import { data_setting,setting } from "ets/network/get_data";
 
 @ComponentV2
 export struct ControlConsole {
-  @Local data_setting:setting = data_setting
+  // @Local data_setting:setting = data_setting
   @Param controlState: ControlState = new ControlState();
   @Local selectedButton: ButtonType = this.controlState.selectedButton;
   @Param onLog?: (msg: string) => void = () => {};

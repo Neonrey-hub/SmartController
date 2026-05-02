@@ -1,5 +1,6 @@
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
+import { data_setting, setting, ApiResponse ,data_array} from "ets/network/get_data"
 
 /**
  * 单个传感器数据项
@@ -20,7 +21,7 @@ export interface SensorItem {
 @Component
 export struct IndustrialSensorCard {
   /** 传感器数据列表 */
-  sensorItems: SensorItem[] = [];
+  sensorItems: data_array[] = [];
 
   build() {
     Column({ space: AppDimensions.SPACING_MD }) {
@@ -48,7 +49,7 @@ export struct IndustrialSensorCard {
           .padding({ top: AppDimensions.SPACING_MD, bottom: AppDimensions.SPACING_MD })
       } else {
         Column({ space: AppDimensions.SPACING_SM }) {
-          ForEach(this.sensorItems, (item: SensorItem) => {
+          ForEach(this.sensorItems, (item: data_array) => {
             this.SensorRow(item)
           }, (item: SensorItem, index: number) => index.toString())
         }
@@ -66,10 +67,10 @@ export struct IndustrialSensorCard {
    * 名称 | 数值 + 单位
    */
   @Builder
-  SensorRow(item: SensorItem) {
+  SensorRow(item: data_array) {
     Row() {
       // 传感器名称
-      Text(item.name)
+      Text(item.tag)
         .fontSize(AppDimensions.FONT_SIZE_SM)
         .fontColor(AppColors.TEXT_TERTIARY)
         .maxLines(1)
@@ -78,7 +79,7 @@ export struct IndustrialSensorCard {
 
       // 数值 + 单位
       Row({ space: AppDimensions.SPACING_XS }) {
-        Text(item.value)
+        Text(item.value.toFixed(1).toString())
           .fontSize(AppDimensions.FONT_SIZE_XL)
           .fontColor(AppColors.TEXT_PRIMARY)
           .fontWeight(FontWeight.Bold)

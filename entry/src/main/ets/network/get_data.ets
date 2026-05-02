@@ -68,11 +68,8 @@ export interface coil_labels{
 
 @ObservedV2
 export class setting{
-  // 定时器（类内部私有）
   private timerId: number | null = null;
-  // 你要的风扇数据
   @Trace is_running: number = 0;
-  //模拟数据
   @Trace get_data:ApiResponse = {"success": true, "meta": {"updated_at": "2026-04-29T06:54:07.850050+00:00", "sensor_revision": 363331, "control_revision": 874, "state_file": "/opt/demo-real/modbus_real_state.json", "runtime": "real-device"}, "sensor": {"online": true, "values": [447.0, 0.114, 0.049, 5.0, 69.6, 19.752, 5.0, 4.0, 416.0, 33.88], "pretty": [{"tag": "二氧化碳", "value": 447.0, "unit": "ppm", "scale": 1}, {"tag": "TVOC总挥发物", "value": 0.114, "unit": "mg/m³", "scale": 0.001}, {"tag": "甲醛", "value": 0.049, "unit": "mg/m³", "scale": 0.001}, {"tag": "PM2.5", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "湿度", "value": 69.6, "unit": "%RH", "scale": 0.015}, {"tag": "温度", "value": 19.752, "unit": "℃", "scale": 0.008}, {"tag": "PM10", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "PM1.0", "value": 4.0, "unit": "μg/m³", "scale": 1}, {"tag": "光照度", "value": 416.0, "unit": "Lux", "scale": 1}, {"tag": "噪声", "value": 33.88, "unit": "dB", "scale": 0.01}], "updated_at": "2026-04-29T06:54:07.843355+00:00", "last_source": "real-bridge"}, "actuators": {"coils": {"buzzer": false, "green": true, "yellow": false, "red": true}, "coil_labels": {"buzzer": "蜂鸣器", "green": "绿灯", "yellow": "黄灯", "red": "红灯"}, "brightness_percent": 0.0, "fan_percent": 0.0, "updated_at": "2026-04-29T06:54:07.850025+00:00", "last_source": "real-bridge-readback"}}
   constructor(){
     this.check_running()
@@ -87,12 +84,73 @@ export class setting{
 
     // 核心：每隔 1 秒执行一次请求
     this.timerId = setInterval(() => {
-      // this.fetchSensorData();
-      for (let i = 0; i < this.get_data.sensor.pretty.length; i++) {
-        this.get_data.sensor.pretty[i].value = Math.random()*100
-      }
+      this.fetchSensorData();
+
     }, 1000);
   }
+
+  private simulateUpdatedData(): ApiResponse {
+    const oldData = this.get_data;
+    const oldPretty = oldData.sensor.pretty;
+
+    // 手动创建新的 pretty 数组
+    const newPretty: data_array[] = [];
+    for (let i = 0; i < oldPretty.length; i++) {
+      const item = oldPretty[i];
+      newPretty.push({
+        tag: item.tag,
+        value: Math.random() * 100,      // 随机更新
+        unit: item.unit,
+        scale: item.scale,
+      });
+    }
+
+    // 同步原始数值数组 values（如果有需要）
+    const newValues: number[] = [];
+    for (let i = 0; i < newPretty.length; i++) {
+      newValues.push(newPretty[i].value);
+    }
+
+    // 构建新对象，逐个字段赋值
+    const newData: ApiResponse = {
+      success: oldData.success,
+      meta: {
+        updated_at: new Date().toISOString(),
+        sensor_revision: oldData.meta.sensor_revision,
+        control_revision: oldData.meta.control_revision,
+        state_file: oldData.meta.state_file,
+        runtime: oldData.meta.runtime,
+      },
+      sensor: {
+        online: oldData.sensor.online,
+        values: newValues,
+        pretty: newPretty,
+        updated_at: new Date().toISOString(),
+        last_source: oldData.sensor.last_source,
+      },
+      actuators: {
+        coils: {
+          buzzer: oldData.actuators.coils.buzzer,
+          green: oldData.actuators.coils.green,
+          yellow: oldData.actuators.coils.yellow,
+          red: oldData.actuators.coils.red,
+        },
+        coil_labels: {
+          buzzer: oldData.actuators.coil_labels.buzzer,
+          green: oldData.actuators.coil_labels.green,
+          yellow: oldData.actuators.coil_labels.yellow,
+          red: oldData.actuators.coil_labels.red,
+        },
+        brightness_percent: oldData.actuators.brightness_percent,
+        fan_percent: oldData.actuators.fan_percent,
+        updated_at: new Date().toISOString(),
+        last_source: oldData.actuators.last_source,
+      },
+    };
+
+    return newData;
+  }
+
   async fetchSensorData(): Promise<ApiResponse | null> {
     // 替换成你的真实接口地址
     const url = "http://10.241.148.11:8090/api/status";
@@ -121,6 +179,7 @@ export class setting{
 
     } catch (err) {
       console.error("请求异常：", (err as BusinessError).message);
+      this.get_data = this.simulateUpdatedData();
       return null;
     }
   }
