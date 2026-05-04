@@ -33,7 +33,7 @@ export struct DeviceHomePage {
       this.addLog('DataV 大屏已更新');
     }
     this.updateTime = DateUtils.getCurrentDateTime();
-    network_connect.reconnect();
+    // network_connect.reconnect();
     this.startAlarmAndLogUpdate();
   }
 

@@ -1,6 +1,7 @@
 import { setting,data_setting } from "ets/network/get_data";
 import http from '@ohos.net.http';
 import { BusinessError } from '@ohos.base';
+import { API_URL } from "ets/network/API_URL";
 
 
 interface coils{"name":string,"enabled":boolean}
@@ -8,7 +9,7 @@ interface brightness{"percent":number}
 
 @ObservedV2
 export class API{
-  private  url:string = "http://10.241.148.11:8090";
+  private url:string = `http://${API_URL}:8090`;
   private httpRequest = http.createHttp();
 
   check_green(enabled:boolean){

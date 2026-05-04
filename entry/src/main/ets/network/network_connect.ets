@@ -3,6 +3,7 @@ import { BusinessError } from '@ohos.base';
 import wifiManager from '@ohos.wifiManager';
 import { util } from '@kit.ArkTS';
 import { data_setting , setting} from "ets/network/get_data";
+import { API_URL } from "ets/network/API_URL";
 
 
 
@@ -39,8 +40,8 @@ interface Features {
 export class WebSocket_connect {
   private ws: webSocket.WebSocket | null = null;
   /*公网测试地址*/
-  // @Trace ip:string = "119.29.15.120:8000"
-  @Trace ip:string = "10.241.148.11:8000";
+  @Trace ip:string = `${API_URL}:8000`
+  // @Trace ip:string = "10.241.148.11:8000";
   @Trace str_arr:string[][] = []
   // @Trace data = {"success": true, "meta": {"updated_at": "2026-04-29T06:54:07.850050+00:00", "sensor_revision": 363331, "control_revision": 874, "state_file": "/opt/demo-real/modbus_real_state.json", "runtime": "real-device"}, "sensor": {"online": true, "values": [447.0, 0.114, 0.049, 5.0, 69.6, 19.752, 5.0, 4.0, 416.0, 33.88], "pretty": [{"tag": "二氧化碳", "value": 447.0, "unit": "ppm", "scale": 1}, {"tag": "TVOC总挥发物", "value": 0.114, "unit": "mg/m³", "scale": 0.001}, {"tag": "甲醛", "value": 0.049, "unit": "mg/m³", "scale": 0.001}, {"tag": "PM2.5", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "湿度", "value": 69.6, "unit": "%RH", "scale": 0.015}, {"tag": "温度", "value": 19.752, "unit": "℃", "scale": 0.008}, {"tag": "PM10", "value": 5.0, "unit": "μg/m³", "scale": 1}, {"tag": "PM1.0", "value": 4.0, "unit": "μg/m³", "scale": 1}, {"tag": "光照度", "value": 416.0, "unit": "Lux", "scale": 1}, {"tag": "噪声", "value": 33.88, "unit": "dB", "scale": 0.01}], "updated_at": "2026-04-29T06:54:07.843355+00:00", "last_source": "real-bridge"}, "actuators": {"coils": {"buzzer": false, "green": false, "yellow": false, "red": false}, "coil_labels": {"buzzer": "蜂鸣器", "green": "绿灯", "yellow": "黄灯", "red": "红灯"}, "brightness_percent": 0.0, "fan_percent": 0.0, "updated_at": "2026-04-29T06:54:07.850025+00:00", "last_source": "real-bridge-readback"}}
   /**
@@ -65,11 +66,19 @@ export class WebSocket_connect {
    * 获取设备 MAC（随机化地址）和 UUID，异步处理
    */
   constructor(){
-    this.connect()
+    this.reconnect()
     this.registerWifiListener()
-    this.send("你好")
+    // this.send("你好")
   }
 
+  async startAutoSend() {
+    console.log("心跳检测");
+    // 核心：每隔 1 秒执行一次请求
+    setInterval(() => {
+      console.log("hearbaet 35000")
+      this.hearbeat();
+    }, 35000);
+  }
   /**
    * 注册 WiFi 连接状态监听
    * 当 WiFi 从断开恢复为已连接时，触发自动重连
@@ -150,12 +159,17 @@ export class WebSocket_connect {
     try {
       // 1. 先获取设备信息
       await this.getDeviceInfo();
+      try {
+        this.ws?.close()
+      }catch (err){
 
+      }
       if(!this.ws){
         this.ws = webSocket.createWebSocket();
       }
       // 2. 创建 WebSocket 并绑定事件
       // 3. 发起连接，传入正确的 header 值
+      console.log("connect调用")
       this.ws.connect(this.url, {
         header: {
           // "Authorization": "Bearer 9e12a5d9d8f34d28a2c20919b9496770",
@@ -165,7 +179,11 @@ export class WebSocket_connect {
         }
       }, (err: BusinessError) => {
         if (err) {
-          console.error('连接失败:', JSON.stringify(err));
+          if (err.message = "Websocket connection exist") {
+            this.state = true
+          }else {
+            console.error('连接失败:', JSON.stringify(err));
+          }
           return;
         }
         console.log('连接请求已发送');
@@ -185,23 +203,11 @@ export class WebSocket_connect {
     this.ws.on('open', () => {
       console.info('✅ WebSocket 已连接');
       this.state = true
-      this.ws!.send("{\n" +
-        "    \"type\": \"hello\",\n" +
-        "    \"version\": 1,\n" +
-        "    \"transport\": \"websocket\",\n" +
-        "    \"features\": {\n" +
-        "        \"mcp\": true\n" +
-        "    },\n" +
-        "    \"audio_params\": {\n" +
-        "        \"format\": \"pcm\",\n" +
-        "        \"sample_rate\": 16000,\n" +
-        "        \"channels\": 1,\n" +
-        "        \"frame_duration\": 60\n" +
-        "    }\n" +
-        "}")
+      this.startAutoSend()
     });
 
     this.ws.on('message', (err, data ) => {
+      this.state = true
       if (err) {
         console.error('❌ 接收消息出错:', JSON.stringify(err));
         this.state = false
@@ -232,7 +238,9 @@ export class WebSocket_connect {
       console.info('📩 收到服务端消息:', messageStr);
 
     });
-
+    this.ws.on("headerReceive",(MessageLevel) => {
+      this.state = true
+    })
     this.ws.on('close', (err, result) => {
       // 无论是否异常关闭，都标记为离线
       this.state = false;
@@ -260,17 +268,17 @@ export class WebSocket_connect {
     });
   }
 
-  send(data: string): Promise<string> {
+  send(data: string,flag = true): Promise<string> {
     return new Promise(async (resolve, reject) => {
       data_setting.fetchSensorData()
       this.try_connect = 0 //重置重连次数限制
       if (!this.state) { //如果当前未连接,触发重连
-        await this.connect()
+        await this.reconnect()
       }
       if (data.length == 0) {
         return
       }
-      this.str_arr.push([data,"0"])
+      if (flag)this.str_arr.push([data,"0"])
       data = `{
               "type": "listen",
               "state": "detect",
@@ -297,6 +305,27 @@ export class WebSocket_connect {
     });
   }
 
+  async hearbeat(){
+    try {
+      this.ws!.send("{\n" +
+        "    \"type\": \"hello\",\n" +
+        "    \"version\": 1,\n" +
+        "    \"transport\": \"websocket\",\n" +
+        "    \"features\": {\n" +
+        "        \"mcp\": true\n" +
+        "    },\n" +
+        "    \"audio_params\": {\n" +
+        "        \"format\": \"pcm\",\n" +
+        "        \"sample_rate\": 16000,\n" +
+        "        \"channels\": 1,\n" +
+        "        \"frame_duration\": 60\n" +
+        "    }\n" +
+        "}")
+      this.state = true
+    }catch (err){
+      this.reconnect()
+    }
+  }
 
   close() {
     this.state = false

@@ -1,6 +1,7 @@
 import http from '@ohos.net.http';
 import { BusinessError } from '@ohos.base';
-
+import { API_URL } from "ets/network/API_URL";
+import { isnetwork_connect } from "ets/network/isconnect";
 // 根接口返回类型
 export interface ApiResponse{
   "success": true,
@@ -85,7 +86,7 @@ export class setting{
     // 核心：每隔 1 秒执行一次请求
     this.timerId = setInterval(() => {
       this.fetchSensorData();
-
+      isnetwork_connect()
     }, 1000);
   }
 
@@ -153,7 +154,7 @@ export class setting{
 
   async fetchSensorData(): Promise<ApiResponse | null> {
     // 替换成你的真实接口地址
-    const url = "http://10.241.148.11:8090/api/status";
+    const url = `http://${API_URL}:8090/api/status`;
 
     try {
       const httpRequest = http.createHttp();
