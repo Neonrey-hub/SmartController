@@ -38,7 +38,7 @@ interface Features {
 
 @ObservedV2
 export class WebSocket_connect {
-  private ws: webSocket.WebSocket | null = null;
+  @Trace ws: webSocket.WebSocket | null = null;
   /*公网测试地址*/
   @Trace ip:string = `${API_URL}:8000`
   // @Trace ip:string = "10.241.148.11:8000";
@@ -66,7 +66,7 @@ export class WebSocket_connect {
    * 获取设备 MAC（随机化地址）和 UUID，异步处理
    */
   constructor(){
-    this.reconnect()
+    // this.reconnect()
     this.registerWifiListener()
     // this.send("你好")
   }
@@ -75,9 +75,11 @@ export class WebSocket_connect {
     console.log("心跳检测");
     // 核心：每隔 1 秒执行一次请求
     setInterval(() => {
-      console.log("hearbaet 35000")
-      this.hearbeat();
-    }, 35000);
+      if (this.state) {
+        console.log("hearbaet 35000")
+        this.hearbeat();
+      }
+    }, 20000);
   }
   /**
    * 注册 WiFi 连接状态监听
@@ -181,10 +183,12 @@ export class WebSocket_connect {
         if (err) {
           if (err.message = "Websocket connection exist") {
             this.state = true
+            console.log("err.message")
+            this.bindEvents();
           }else {
             console.error('连接失败:', JSON.stringify(err));
           }
-          return;
+          return ;
         }
         console.log('连接请求已发送');
 
@@ -203,11 +207,13 @@ export class WebSocket_connect {
     this.ws.on('open', () => {
       console.info('✅ WebSocket 已连接');
       this.state = true
+      console.log("open")
       this.startAutoSend()
     });
 
     this.ws.on('message', (err, data ) => {
       this.state = true
+      console.log("message")
       if (err) {
         console.error('❌ 接收消息出错:', JSON.stringify(err));
         this.state = false
@@ -240,6 +246,7 @@ export class WebSocket_connect {
     });
     this.ws.on("headerReceive",(MessageLevel) => {
       this.state = true
+      console.log("headerReceive")
     })
     this.ws.on('close', (err, result) => {
       // 无论是否异常关闭，都标记为离线
@@ -261,17 +268,16 @@ export class WebSocket_connect {
     this.ws.on('error', (err) => {
       console.error('❌ 异常:', JSON.stringify(err));
       this.state = false;
-      if (this.try_connect <= this.connect_max) {
+/*      if (this.try_connect <= this.connect_max) {
         this.connect()
         this.try_connect ++
-      }
+      }*/
     });
   }
 
   send(data: string,flag = true): Promise<string> {
     return new Promise(async (resolve, reject) => {
       data_setting.fetchSensorData()
-      this.try_connect = 0 //重置重连次数限制
       if (!this.state) { //如果当前未连接,触发重连
         await this.reconnect()
       }
@@ -321,7 +327,6 @@ export class WebSocket_connect {
         "        \"frame_duration\": 60\n" +
         "    }\n" +
         "}")
-      this.state = true
     }catch (err){
       this.reconnect()
     }
