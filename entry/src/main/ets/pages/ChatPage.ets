@@ -3,12 +3,20 @@ import { network_connect, WebSocket_connect } from "ets/network/network_connect"
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { VoiceInputButton } from '../components/chat/VoiceInputButton'
-import { data_setting , setting} from "ets/network/get_data";
+import { data_setting, setting } from "ets/network/get_data";
 
 @ComponentV2
 export struct ChatPage {
   @Local network_connect: WebSocket_connect = network_connect;
   @Local data_setting: setting = data_setting;
+  private scroller: Scroller = new Scroller();
+  @Local private userScrolled: boolean = false;
+  @Local private showScrollToBottom: boolean = false;
+  private lastMsgCount: number = 0;
+
+  aboutToAppear(): void {
+    this.lastMsgCount = this.network_connect.str_arr.length;
+  }
 
   build() {
     NavDestination() {
@@ -30,13 +38,14 @@ export struct ChatPage {
           }
           .margin({ left: 12 })
         }
-        .width('100%').height(56)
+        .width('100%')
+        .height(56)
         .justifyContent(FlexAlign.Center)
         .backgroundColor('#081F37')
         .padding({ left: 20, right: 20 })
 
         // 消息列表
-        List() {
+        List({scroller : this.scroller}) {
           ForEach(network_connect.str_arr, (item: string[], key: number) => {
             ListItem() {
               // 用户消息（右侧）—— 标记为 "0"
@@ -45,12 +54,24 @@ export struct ChatPage {
                   Blank()
                   Column() {
                     Text(item[0])
-                      .fontSize(16).fontColor('#FFFFFF').padding(12)
+                      .fontSize(16)
+                      .fontColor('#FFFFFF')
+                      .padding(12)
                       .backgroundColor('#1E5A99')
-                      .borderRadius({ topLeft: 16, topRight: 16, bottomLeft: 16, bottomRight: 4 })
+                      .borderRadius({
+                        topLeft: 16,
+                        topRight: 16,
+                        bottomLeft: 16,
+                        bottomRight: 4
+                      })
                       .constraintSize({ maxWidth: '80%' })
                   }
-                  .margin({ left: 40, right: 16, top: 6, bottom: 6 })
+                  .margin({
+                    left: 40,
+                    right: 16,
+                    top: 6,
+                    bottom: 6
+                  })
                 }
                 .width("100%")
               }
@@ -59,27 +80,83 @@ export struct ChatPage {
                 Row() {
                   Column() {
                     Text(item[0])
-                      .fontSize(16).fontColor('#D0D8E8').padding(12)
+                      .fontSize(16)
+                      .fontColor('#D0D8E8')
+                      .padding(12)
                       .backgroundColor('#122744')
-                      .borderRadius({ topLeft: 4, topRight: 16, bottomLeft: 16, bottomRight: 16 })
+                      .borderRadius({
+                        topLeft: 4,
+                        topRight: 16,
+                        bottomLeft: 16,
+                        bottomRight: 16
+                      })
                       .constraintSize({ maxWidth: '80%' })
                   }
-                  .margin({ left: 16, right: 40, top: 6, bottom: 6 })
+                  .margin({
+                    left: 16,
+                    right: 40,
+                    top: 6,
+                    bottom: 6
+                  })
+
                   Blank()
                 }
                 .width("100%")
               }
             }
             .width("100%")
+            .onAppear(() => {
+              const currentCount = network_connect.str_arr.length;
+              const isLastMessage = key === currentCount - 1;
+              if (isLastMessage && currentCount > this.lastMsgCount) {
+                this.scroller.scrollToIndex(key);
+                this.userScrolled = false;
+              }
+              this.lastMsgCount = currentCount;
+              this.showScrollToBottom = !isLastMessage;
+            })
           })
         }
-        .layoutWeight(1).width('100%').scrollBar(BarState.Auto).edgeEffect(EdgeEffect.Spring)
-        .backgroundColor('#0A1428').padding({ top: 8, bottom: 8 })
+        .layoutWeight(1)
+        .width('100%')
+        .scrollBar(BarState.Auto)
+        .edgeEffect(EdgeEffect.Spring)
+        .onScroll((scrollOffset: number) => {
+          if (scrollOffset < 0) {
+            this.userScrolled = true;
+            this.showScrollToBottom = true;
+          }
+        })
+        .backgroundColor('#0A1428')
+        .padding({ top: 8, bottom: 8 })
+
+        // 回到最新消息按钮
+        if (this.showScrollToBottom) {
+          Button() {
+            Text('⬇ 最新消息')
+              .fontSize(12).fontColor('#FFFFFF')
+          }
+          .width(100)
+          .height(32)
+          .borderRadius(16)
+          .backgroundColor('#1E5A99')
+          .position({ right: 16, bottom: 120 })
+          .onClick(() => {
+            this.userScrolled = false;
+            const lastIndex = network_connect.str_arr.length - 1;
+            this.scroller.scrollToIndex(lastIndex);
+          })
+        }
 
 
         // 底部输入区
-        Row() { VoiceInputButton() }
-        .width('100%').height(110).justifyContent(FlexAlign.Center).backgroundColor('#0A1428')
+        Row() {
+          VoiceInputButton()
+        }
+        .width('100%')
+        .height(110)
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor('#0A1428')
         .border({ width: { top: 1 }, color: '#1E2A3A' })
       }
       .width('100%').height('100%').backgroundColor('#081F37')

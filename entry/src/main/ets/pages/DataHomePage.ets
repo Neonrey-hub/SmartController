@@ -294,19 +294,22 @@ export struct DataHomePage {
                       .layoutWeight(1)
 
                     // 数值 + 单位
-                    Row({ space: AppDimensions.SPACING_XS }) {
+                    Row({ space: 39 }) {
                       Text(item.value.toFixed(1).toString())
                         .fontSize(AppDimensions.FONT_SIZE_XL)
                         .fontColor(AppColors.TEXT_PRIMARY)
                         .fontWeight(FontWeight.Bold)
                         .maxLines(1)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .width(70)
+                        .textAlign(TextAlign.Start)
 
                       Text(item.unit)
                         .fontSize(AppDimensions.FONT_SIZE_XS)
                         .fontColor(AppColors.TEXT_DISABLED)
                         .maxLines(1)
                     }
+                    .layoutWeight(1)
                     .justifyContent(FlexAlign.End)
                     .alignItems(VerticalAlign.Bottom)
                   }
