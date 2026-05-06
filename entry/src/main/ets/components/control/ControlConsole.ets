@@ -15,7 +15,7 @@ export struct ControlConsole {
   @Param controlState: ControlState = new ControlState();
   @Local selectedButton: ButtonType = this.controlState.selectedButton;
   @Param onLog?: (msg: string) => void = () => {};
-  @Local isstatus:number[] = [0,0,0,0]
+  @Local isstatus:number[] = [0,0,0,0,0,0]
 
   aboutToAppear() {
     this.selectedButton = this.controlState.selectedButton;
@@ -56,6 +56,9 @@ export struct ControlConsole {
             this.controlState.buzzerEnabled = enabled;
             this.updateActuatorStats();
             this.onLog?.(`蜂鸣器 ${enabled ? '开启' : '关闭'}`);
+            setTimeout(()=>{
+              this.isstatus[0] = 0
+            },1500)
           }
         })
         StatusIndicator({
@@ -68,6 +71,9 @@ export struct ControlConsole {
             this.controlState.greenLightEnabled = enabled;
             this.updateActuatorStats();
             this.onLog?.(`绿灯 ${enabled ? '开启' : '关闭'}`);
+            setTimeout(()=>{
+              this.isstatus[1] = 0
+            },1500)
           }
         })
       }
@@ -85,6 +91,9 @@ export struct ControlConsole {
             this.controlState.yellowLightEnabled = enabled;
             this.updateActuatorStats();
             this.onLog?.(`黄灯 ${enabled ? '开启' : '关闭'}`);
+            setTimeout(()=>{
+              this.isstatus[2] = 0
+            },1500)
           }
         })
         StatusIndicator({
@@ -97,6 +106,9 @@ export struct ControlConsole {
             this.controlState.redLightEnabled = enabled;
             this.updateActuatorStats();
             this.onLog?.(`红灯 ${enabled ? '开启' : '关闭'}`);
+            setTimeout(()=>{
+              this.isstatus[3] = 0
+            },1500)
           }
         })
       }
@@ -106,11 +118,15 @@ export struct ControlConsole {
       Column({ space: AppDimensions.SPACING_MD }) {
         ControlSlider({
           label: '小灯亮度',
-          value: this.controlState.smallLightBrightness,
+          value: (this.isstatus[4] == 0 ? data_setting.get_data.actuators.brightness_percent : this.controlState.smallLightBrightness),
           onValueChange: (value: number) => {
+            this.isstatus[4] = 1
             curb_hardware.API_brightness(value);
             this.controlState.change_smallLightBrightness(value);
             this.updateActuatorStats();
+            setTimeout(()=>{
+              this.isstatus[4] = 0
+            },1500)
           },
           onChangeEnd: (value: number) => {
             this.onLog?.(`小灯亮度 设置为 ${Math.round(value)}%`);
@@ -118,11 +134,15 @@ export struct ControlConsole {
         })
         ControlSlider({
           label: '风扇转速',
-          value: this.controlState.fanSpeed,
+          value: (this.isstatus[5] == 0 ? data_setting.get_data.actuators.fan_percent : this.controlState.fanSpeed),
           onValueChange: (value: number) => {
+            this.isstatus[5] = 1
             curb_hardware.API_fan(value);
             this.controlState.fanSpeed = value;
             this.updateActuatorStats();
+            setTimeout(()=>{
+              this.isstatus[5] = 0
+            },1500)
           },
           onChangeEnd: (value: number) => {
             this.onLog?.(`风扇转速 设置为 ${Math.round(value)}%`);
@@ -152,8 +172,11 @@ export struct ControlConsole {
         curb_hardware.check_green(true);
         curb_hardware.check_yellow(true);
         curb_hardware.check_red(true);
-        this.isstatus = [1,1,1,1]
+        this.isstatus = [1,1,1,1,0,0]
         this.onLog?.('展示模式已应用');
+        setTimeout(()=>{
+          this.isstatus = [0,0,0,0,0,0]
+        },1500)
         break;
       case ButtonType.ALARM:
         this.controlState.buzzerEnabled = true;
@@ -165,7 +188,10 @@ export struct ControlConsole {
         curb_hardware.check_yellow(false);
         curb_hardware.check_red(true);
         this.onLog?.('告警模式已应用');
-        this.isstatus = [1,1,1,1]
+        this.isstatus = [1,1,1,1,0,0]
+        setTimeout(()=>{
+          this.isstatus = [0,0,0,0,0,0]
+        },1500)
         break;
       case ButtonType.MUTE:
         this.controlState.buzzerEnabled = false;
@@ -177,7 +203,10 @@ export struct ControlConsole {
         curb_hardware.check_yellow(false);
         curb_hardware.check_red(false);
         this.onLog?.('静音模式已应用');
-        this.isstatus = [1,1,1,1]
+        this.isstatus = [1,1,1,1,0,0]
+        setTimeout(()=>{
+          this.isstatus = [0,0,0,0,0,0]
+        },1500)
         break;
     }
     this.updateActuatorStats();
