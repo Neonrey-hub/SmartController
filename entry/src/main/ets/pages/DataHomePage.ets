@@ -334,8 +334,8 @@ export struct DataHomePage {
               // .border({ width: 1, color: 'rgba(0, 229, 255, 0.2)' })
               // .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
 
-            TrendChartCard()
-              .width('100%')
+            // TrendChartCard()
+            //   .width('100%')
 
             EdgeDataQuality({ abnormalCount: this.abnormalCount })
               .width('100%')
@@ -344,13 +344,13 @@ export struct DataHomePage {
               .border({ width: 1, color: 'rgba(0, 229, 255, 0.2)' })
               .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
 
-            AlarmQueue({ alarmItems: this.alarmItems })
-              .width('100%')
-              .layoutWeight(1)
-              .borderRadius(16)
-              .backgroundColor('rgba(18, 30, 58, 0.7)')
-              .border({ width: 1, color: 'rgba(255, 91, 110, 0.3)' })
-              .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
+            // AlarmQueue({ alarmItems: this.alarmItems })
+            //   .width('100%')
+            //   .layoutWeight(1)
+            //   .borderRadius(16)
+            //   .backgroundColor('rgba(18, 30, 58, 0.7)')
+            //   .border({ width: 1, color: 'rgba(255, 91, 110, 0.3)' })
+            //   .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
           }
           .width('100%')
           .padding({ left: 16, right: 16, top: 16, bottom: 32 })

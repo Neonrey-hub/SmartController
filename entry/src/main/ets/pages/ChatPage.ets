@@ -76,6 +76,7 @@ export struct ChatPage {
         .layoutWeight(1).width('100%').scrollBar(BarState.Auto).edgeEffect(EdgeEffect.Spring)
         .backgroundColor('#0A1428').padding({ top: 8, bottom: 8 })
 
+
         // 底部输入区
         Row() { VoiceInputButton() }
         .width('100%').height(110).justifyContent(FlexAlign.Center).backgroundColor('#0A1428')
