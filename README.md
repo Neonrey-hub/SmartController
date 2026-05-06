@@ -230,7 +230,7 @@ SmartController/
 ### 4. 克隆项目
 
 ```bash
-git clone <你的仓库地址>
+git clone https://github.com/Neonrey-hub/SmartController.git
 cd SmartController
 ```
 
