@@ -304,13 +304,13 @@ export struct DataHomePage {
                         .width(70)
                         .textAlign(TextAlign.Start)
 
-                      Text(item.unit)
+Text(item.unit)
                         .fontSize(AppDimensions.FONT_SIZE_XS)
                         .fontColor(AppColors.TEXT_DISABLED)
                         .maxLines(1)
                     }
                     .layoutWeight(1)
-                    .justifyContent(FlexAlign.End)
+                    .justifyContent(FlexAlign.Start)
                     .alignItems(VerticalAlign.Bottom)
                   }
                   .width('100%')
