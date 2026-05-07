@@ -76,7 +76,6 @@ export class WebSocket_connect {
     // 核心：每隔 1 秒执行一次请求
     setInterval(() => {
       if (this.state) {
-        console.log("hearbaet 35000")
         this.hearbeat();
       }
     }, 20000);
@@ -152,7 +151,6 @@ export class WebSocket_connect {
       this.deviceMac = '00:00:00:00:00:00'; // 兜底值
     }
 
-    // 生成或获取缓存的 UUID（此处使用每次生成的随机 UUID）
     this.clientUuid = util.generateRandomUUID(true);
     console.info(`Client UUID: ${this.clientUuid}`);
   }
@@ -290,7 +288,6 @@ export class WebSocket_connect {
               "state": "detect",
               "text": "${data}"
           }`
-      // 生成唯一请求ID（实际项目中可以用 uuid 或时间戳+随机数）
       const requestId = util.generateRandomUUID(false);
       // 构造发送的JSON数据，包含请求ID
       const message = JSON.stringify(data); // 整体类型断言
