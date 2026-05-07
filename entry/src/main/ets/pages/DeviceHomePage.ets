@@ -24,6 +24,7 @@ export struct DeviceHomePage {
   @Local logItems: EventLogItem[] = globalEventLogs;
   @Local alarmItems: AlarmItem[] = [];
   @Local controlState: ControlState = controlState;
+  @Local showMenu: boolean = false;
 
   private timerId: number = -1;
 
@@ -73,44 +74,100 @@ export struct DeviceHomePage {
 
   build() {
     NavDestination() {
-      Column() {
-        Row() { Text('设备').fontSize(20).fontWeight(FontWeight.Bold).fontColor('#E0E6F0') }
-        .width('100%').height(56).justifyContent(FlexAlign.Center).backgroundColor('#081F37')
-
-        Scroll() {
-          Column({ space: 20 }) {
-            DeviceInfoCard({ deviceName: this.deviceName, isOnline: network_connect.state, updateTime: this.updateTime })
-
-            Column() {
-              Row() {
-                Text('快捷控制').fontSize(16).fontWeight(FontWeight.Medium).fontColor('#B0C4D8')
-                Blank()
-                Text(network_connect.state ? '● 在线' : '○ 离线')
-                  .fontSize(12).fontColor(network_connect.state ? '#4ADE80' : '#EF4444')
-              }
-              .width('100%').padding({ top: 12, left: 16, right: 16 })
-              ControlConsole({
-                controlState: this.controlState,
-                onLog: (msg: string) => this.addLog(msg)
-              })
+      Stack({ alignContent: Alignment.TopEnd }) {
+        Column() {
+          Row() {
+            Text('设备')
+              .fontSize(20)
+              .fontWeight(FontWeight.Bold)
+              .fontColor('#E0E6F0')
+              .layoutWeight(1)
+              .textAlign(TextAlign.Center)
+            Row() {
+              Text('+')
+                .fontSize(28).fontColor('#E0E6F0').fontWeight(FontWeight.Normal)
             }
-            .width('100%').backgroundColor('#121E3A').borderRadius(20).shadow({ radius: 12, color: '#00000040', offsetY: 4 })
-
-            ActuatorOccupancy({ controlState: this.controlState })
-
-            EventLog({ logItems: this.logItems })
-
-            Column() {
-              AlarmQueue({ alarmItems: this.alarmItems })
-            }
-            .width('100%').border({ width: 2, color: '#EF444420', style: BorderStyle.Solid }).borderRadius(20).padding(2)
+            .onClick(() => {
+              this.showMenu = !this.showMenu
+            })
           }
-          .width('100%').padding({ left: 16, right: 16, top: 16, bottom: 32 }).backgroundColor('#0A1428')
+          .width('100%')
+          .height(56)
+          .justifyContent(FlexAlign.Center)
+          .backgroundColor('#081F37')
+          .padding({ left: 20, right: 20 })
+
+          Scroll() {
+            Column({ space: 20 }) {
+              DeviceInfoCard({
+                deviceName: this.deviceName,
+                isOnline: network_connect.state,
+                updateTime: this.updateTime
+              })
+
+              Column() {
+                Row() {
+                  Text('快捷控制').fontSize(16).fontWeight(FontWeight.Medium).fontColor('#B0C4D8')
+                  Blank()
+                  Text(network_connect.state ? '● 在线' : '○ 离线')
+                    .fontSize(12).fontColor(network_connect.state ? '#4ADE80' : '#EF4444')
+                }
+                .width('100%').padding({ top: 12, left: 16, right: 16 })
+
+                ControlConsole({
+                  controlState: this.controlState,
+                  onLog: (msg: string) => this.addLog(msg)
+                })
+              }
+              .width('100%')
+              .backgroundColor('#121E3A')
+              .borderRadius(20)
+              .shadow({ radius: 12, color: '#00000040', offsetY: 4 })
+
+              ActuatorOccupancy({ controlState: this.controlState })
+
+              EventLog({ logItems: this.logItems })
+
+              Column() {
+                AlarmQueue({ alarmItems: this.alarmItems })
+              }
+              .width('100%')
+              .border({ width: 2, color: '#EF444420', style: BorderStyle.Solid })
+              .borderRadius(20)
+              .padding(2)
+            }
+            .width('100%')
+            .padding({
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: 32
+            })
+            .backgroundColor('#0A1428')
+          }
+          .layoutWeight(1).width('100%').scrollBar(BarState.Auto).edgeEffect(EdgeEffect.Spring)
+
+          if (this.showMenu) {
+            Column() {
+              Text('添加设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
+              Divider().color('#3A4A5C').strokeWidth(1)
+              Text('刷新设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
+              Divider().color('#3A4A5C').strokeWidth(1)
+              Text('设置').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
+            }
+            .width(120)
+            .backgroundColor('#1A2A3A')
+            .borderRadius(8)
+            .shadow({ radius: 8, color: '#00000060' })
+            .margin({ right: 16, top: 48 })
+            .onClick(() => {
+              this.showMenu = false
+            })
+          }
         }
-        .layoutWeight(1).width('100%').scrollBar(BarState.Auto).edgeEffect(EdgeEffect.Spring)
+        .width('100%').height('100%').backgroundColor('#081F37')
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
       }
-      .width('100%').height('100%').backgroundColor('#081F37')
-      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     }
     .hideTitleBar(true)
     .onBackPressed(() => {
