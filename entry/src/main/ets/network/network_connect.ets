@@ -49,7 +49,7 @@ export class WebSocket_connect {
    */
   @Trace state:boolean = false
   private session_id : String = '';
-  private url: string = `ws://${this.ip}/xiaozhi/v1/`;
+  private url: string = `ws://${API_URL}:8000/xiaozhi/v1/`;
   // 存储未完成的请求，key 为 requestId
   private pendingRequests: Map<string, PendingRequest> = new Map();
   // 缓存的设备标识，在 connect 时获取并存储
@@ -170,7 +170,8 @@ export class WebSocket_connect {
       // 2. 创建 WebSocket 并绑定事件
       // 3. 发起连接，传入正确的 header 值
       console.log("connect调用")
-      this.ws.connect(this.url, {
+      this.ws.connect(`ws://${API_URL}:8000/xiaozhi/v1/`, {
+
         header: {
           // "Authorization": "Bearer 9e12a5d9d8f34d28a2c20919b9496770",
           "Protocol-Version": "1",

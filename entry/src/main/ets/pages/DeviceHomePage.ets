@@ -10,6 +10,7 @@ import { network_connect, WebSocket_connect } from "ets/network/network_connect"
 import { promptAction} from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { data_setting } from "ets/network/get_data";
+import { API_URL, ChangeApiIP } from "ets/network/API_URL";
 import { generateAlarms } from '../utils/AlarmUtils'
 import { SensorItem } from '../components/sensor/IndustrialSensorCard'
 
@@ -25,6 +26,8 @@ export struct DeviceHomePage {
   @Local alarmItems: AlarmItem[] = [];
   @Local controlState: ControlState = controlState;
   @Local showMenu: boolean = false;
+  @Local showAddDeviceDialog: boolean = false;
+  @Local inputIP: string = '';
 
   private timerId: number = -1;
 
@@ -75,7 +78,7 @@ export struct DeviceHomePage {
   build() {
     NavDestination() {
       Stack({ alignContent: Alignment.TopEnd }) {
-        Column() {
+Column() {
           Row() {
             Text('设备')
               .fontSize(20)
@@ -83,6 +86,7 @@ export struct DeviceHomePage {
               .fontColor('#E0E6F0')
               .layoutWeight(1)
               .textAlign(TextAlign.Center)
+
             Row() {
               Text('+')
                 .fontSize(28).fontColor('#E0E6F0').fontWeight(FontWeight.Normal)
@@ -96,6 +100,32 @@ export struct DeviceHomePage {
           .justifyContent(FlexAlign.Center)
           .backgroundColor('#081F37')
           .padding({ left: 20, right: 20 })
+
+          if (this.showMenu) {
+            Column() {
+              Text('添加设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
+                .onClick(() => {
+                  this.showMenu = false;
+                  this.showAddDeviceDialog = true;
+                })
+              Divider().color('#3A4A5C').strokeWidth(1)
+              Text('刷新设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
+                .onClick(() => {
+                  this.showMenu = false;
+                })
+              Divider().color('#3A4A5C').strokeWidth(1)
+              Text('设置').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
+                .onClick(() => {
+                  this.showMenu = false;
+                })
+            }
+            .width(120)
+            .backgroundColor('#1A2A3A')
+            .borderRadius(8)
+            .shadow({ radius: 8, color: '#00000060' })
+            .position({ right: 20, top: 52 })
+            .zIndex(100)
+          }
 
           Scroll() {
             Column({ space: 20 }) {
@@ -138,6 +168,7 @@ export struct DeviceHomePage {
             }
             .width('100%')
             .padding({
+
               left: 16,
               right: 16,
               top: 16,
@@ -146,27 +177,43 @@ export struct DeviceHomePage {
             .backgroundColor('#0A1428')
           }
           .layoutWeight(1).width('100%').scrollBar(BarState.Auto).edgeEffect(EdgeEffect.Spring)
-
-          if (this.showMenu) {
-            Column() {
-              Text('添加设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
-              Divider().color('#3A4A5C').strokeWidth(1)
-              Text('刷新设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
-              Divider().color('#3A4A5C').strokeWidth(1)
-              Text('设置').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
-            }
-            .width(120)
-            .backgroundColor('#1A2A3A')
-            .borderRadius(8)
-            .shadow({ radius: 8, color: '#00000060' })
-            .margin({ right: 16, top: 48 })
-            .onClick(() => {
-              this.showMenu = false
-            })
-          }
         }
         .width('100%').height('100%').backgroundColor('#081F37')
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+
+        if (this.showAddDeviceDialog) {
+          Column() {
+            Text(`当前服务器:${API_URL?? "--"}`).fontSize(18).fontWeight(FontWeight.Bold).fontColor('#E0E6F0')
+            TextInput({ text: $$this.inputIP, placeholder: '请输入设备IP' })
+              .backgroundColor('#1A2A3A')
+              .fontColor('#E0E6F0')
+              .placeholderColor('#6B7280')
+              .margin({ top: 20 })
+              .id('deviceNameInput')
+            Row({ space: 20 }) {
+              Button('取消').fontColor('#E0E6F0').backgroundColor('#3A4A5C')
+                .onClick(() => {
+                  this.showAddDeviceDialog = false;
+                })
+              Button('确定').fontColor('#E0E6F0').backgroundColor('#4A90D9')
+                .onClick(() => {
+                  if (this.inputIP) {
+                    ChangeApiIP(this.inputIP);
+                  }
+                  this.showAddDeviceDialog = false;
+                })
+            }
+            .margin({ top: 20 })
+          }
+          .width(280)
+          .padding(24)
+          .backgroundColor('#1A2A3A')
+          .borderRadius(16)
+          .alignItems(HorizontalAlign.Center)
+          .position({ x: '50%', y: '50%' })
+          .translate({ x: '-50%', y: '-50%' })
+          .zIndex(200)
+        }
       }
     }
     .hideTitleBar(true)

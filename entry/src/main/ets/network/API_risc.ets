@@ -41,10 +41,10 @@ export class API{
     this.API_http(`{"percent":${num}}`,"/api/control/fan")
   }
   async API_http(data:string,API:string){
-    console.log(this.url+API)
+    // console.log(this.url+API)
     try {
       let JSON_DATA = JSON.parse(data) as coils | brightness
-      const response = await this.httpRequest.request(this.url+API, {
+      const response = await this.httpRequest.request(`http://${API_URL}:8090`+API, {
         method: http.RequestMethod.POST,
         connectTimeout: 10000,
         readTimeout: 10000,

@@ -185,7 +185,7 @@ export class setting{
     try {
       const httpRequest = http.createHttp();
 
-      const response = await httpRequest.request(url, {
+      const response = await httpRequest.request(`http://${API_URL}:8090/api/status`, {
         method: http.RequestMethod.GET,
         connectTimeout: 10000,
         readTimeout: 10000
