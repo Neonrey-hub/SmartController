@@ -46,11 +46,26 @@ export struct DeviceHomePage {
     clearInterval(this.timerId);
   }
 
+  private syncControlState(): void {
+    const actuators = data_setting.get_data?.actuators;
+    if (actuators) {
+      this.controlState.buzzerEnabled = actuators.coils.buzzer;
+      this.controlState.greenLightEnabled = actuators.coils.green;
+      this.controlState.yellowLightEnabled = actuators.coils.yellow;
+      this.controlState.redLightEnabled = actuators.coils.red;
+      this.controlState.smallLightBrightness = actuators.brightness_percent;
+      this.controlState.fanSpeed = actuators.fan_percent;
+      this.controlState.actuatorActive = data_setting.check_running();
+      this.controlState.linkageRatio = Math.round((this.controlState.actuatorActive / this.controlState.actuatorTotal) * 100);
+    }
+  }
+
   private startAlarmAndLogUpdate(): void {
     this.timerId = setInterval(() => {
       this.updateTime = DateUtils.getCurrentDateTime();
       const sensorItems: SensorItem[] = this.getSensorItems();
       this.alarmItems = generateAlarms(sensorItems);
+      this.syncControlState();
     }, 1000);
   }
 

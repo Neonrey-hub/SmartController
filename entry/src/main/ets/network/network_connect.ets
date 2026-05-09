@@ -181,9 +181,9 @@ export class WebSocket_connect {
       }, (err: BusinessError) => {
         if (err) {
           if (err.message = "Websocket connection exist") {
-            this.state = true
-            console.log("err.message")
-            this.bindEvents();
+            // this.state = true
+            // console.log("err.message")
+            // this.bindEvents();
           }else {
             console.error('连接失败:', JSON.stringify(err));
           }

@@ -154,7 +154,7 @@ export struct ChatPage {
           VoiceInputButton()
         }
         .width('100%')
-        .height(110)
+        .height(140)
         .justifyContent(FlexAlign.Center)
         .backgroundColor('#0A1428')
         .border({ width: { top: 1 }, color: '#1E2A3A' })

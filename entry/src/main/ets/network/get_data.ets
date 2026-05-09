@@ -214,7 +214,7 @@ export class setting{
 
     } catch (err) {
       console.error("请求异常：", (err as BusinessError).message);
-      this.get_data = this.simulateUpdatedData();
+      // this.get_data = this.simulateUpdatedData();
       this.state = false
       return null;
     }
