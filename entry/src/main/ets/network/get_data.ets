@@ -1,6 +1,6 @@
 import http from '@ohos.net.http';
 import { BusinessError } from '@ohos.base';
-import { APIConfig } from "ets/network/API_URL";
+import { API_URL } from "ets/network/API_URL";
 import { isnetwork_connect } from "ets/network/isconnect";
 // 根接口返回类型
 export interface ApiResponse{
@@ -180,7 +180,7 @@ export class setting{
 
   async fetchSensorData(): Promise<ApiResponse | null> {
     // 替换成你的真实接口地址
-    const url = `http://${APIConfig.API_URL}:8090/api/status`;
+    // const url = `http://${APIConfig.API_URL}:8090/api/status`;
 
     try {
       const httpRequest = http.createHttp();

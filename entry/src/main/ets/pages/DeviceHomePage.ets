@@ -199,6 +199,7 @@ Column() {
                 .onClick(() => {
                   if (this.inputIP) {
                     ChangeApiIP(this.inputIP);
+                    this.inputIP = ""
                   }
                   this.showAddDeviceDialog = false;
                 })
