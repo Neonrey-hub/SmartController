@@ -183,7 +183,7 @@ Column() {
 
         if (this.showAddDeviceDialog) {
           Column() {
-            Text(`当前服务器:${API_URL?? "--"}`).fontSize(18).fontWeight(FontWeight.Bold).fontColor('#E0E6F0')
+            Text(`IP:${API_URL?? "--"}`).fontSize(18).fontWeight(FontWeight.Bold).fontColor('#E0E6F0')
             TextInput({ text: $$this.inputIP, placeholder: '请输入设备IP' })
               .backgroundColor('#1A2A3A')
               .fontColor('#E0E6F0')
