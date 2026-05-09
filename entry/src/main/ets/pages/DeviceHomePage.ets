@@ -103,7 +103,7 @@ Column() {
 
           if (this.showMenu) {
             Column() {
-              Text('添加设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
+              Text('设置IP').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
                 .onClick(() => {
                   this.showMenu = false;
                   this.showAddDeviceDialog = true;
