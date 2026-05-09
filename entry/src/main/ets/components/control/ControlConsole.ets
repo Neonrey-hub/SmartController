@@ -121,6 +121,7 @@ export struct ControlConsole {
           value: (this.isstatus[4] == 0 ? data_setting.get_data.actuators.brightness_percent : this.controlState.smallLightBrightness),
           onValueChange: (value: number) => {
             this.isstatus[4] = 1
+            data_setting.get_data.actuators.brightness_percent = value
             curb_hardware.API_brightness(value);
             this.controlState.change_smallLightBrightness(value);
             this.updateActuatorStats();
@@ -137,6 +138,7 @@ export struct ControlConsole {
           value: (this.isstatus[5] == 0 ? data_setting.get_data.actuators.fan_percent : this.controlState.fanSpeed),
           onValueChange: (value: number) => {
             this.isstatus[5] = 1
+            data_setting.get_data.actuators.fan_percent = value
             curb_hardware.API_fan(value);
             this.controlState.fanSpeed = value;
             this.updateActuatorStats();

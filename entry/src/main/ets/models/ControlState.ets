@@ -41,9 +41,9 @@ export class ControlState {
   /** 红灯状态 */
   @Trace redLightEnabled: boolean = false;
   /** 小灯亮度值 (0-100) */
-  @Trace smallLightBrightness: number = 51;
+  @Trace smallLightBrightness: number = 0;
   /** 风扇转速值 (0-100) */
-  @Trace fanSpeed: number = 53;
+  @Trace fanSpeed: number = 0;
 
   // ---- 执行器联动占用相关字段 ----
   /** 激活的执行器数量 */
@@ -78,8 +78,8 @@ export class ControlState {
     this.greenLightEnabled = false;
     this.yellowLightEnabled = false;
     this.redLightEnabled = false;
-    this.smallLightBrightness = 51;
-    this.fanSpeed = 53;
+    this.smallLightBrightness = 0;
+    this.fanSpeed = 0;
     this.actuatorActive = data_setting.check_running();
     this.actuatorTotal = 4;
     this.linkageRatio = Math.round((data_setting.check_running() / this.actuatorTotal) * 100);
