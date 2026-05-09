@@ -45,13 +45,13 @@ export struct DeviceInfoCard {
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
 
-      // 设备图片占位符
-      Image($r('app.media.startIcon'))
-        .width(200)
-        .height(150)
-        .objectFit(ImageFit.Contain)
-        .borderRadius(AppDimensions.RADIUS_LG)
-        .padding(AppDimensions.SPACING_LG)
+      // 设备图片占位符（已注释）
+      // Image($r('app.media.startIcon'))
+      //   .width(200)
+      //   .height(150)
+      //   .objectFit(ImageFit.Contain)
+      //   .borderRadius(AppDimensions.RADIUS_LG)
+      //   .padding(AppDimensions.SPACING_LG)
     }
     .width('100%')
     .padding(AppDimensions.SPACING_LG)

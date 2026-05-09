@@ -144,10 +144,12 @@ Column() {
 
               Column() {
                 Row() {
-                  Text('快捷控制').fontSize(16).fontWeight(FontWeight.Medium).fontColor('#B0C4D8')
+                  // 快捷控制标题（已注释）
+                  // Text('快捷控制').fontSize(16).fontWeight(FontWeight.Medium).fontColor('#B0C4D8')
                   Blank()
-                  Text(network_connect.state ? '● 在线' : '○ 离线')
-                    .fontSize(12).fontColor(network_connect.state ? '#4ADE80' : '#EF4444')
+                  // 在线状态（已注释）
+                  // Text(network_connect.state ? '● 在线' : '○ 离线')
+                  //   .fontSize(12).fontColor(network_connect.state ? '#4ADE80' : '#EF4444')
                 }
                 .width('100%').padding({ top: 12, left: 16, right: 16 })
 
@@ -203,15 +205,16 @@ Column() {
 
           Column() {
             Text(`IP:${API_URL?? "--"}`).fontSize(18).fontWeight(FontWeight.Bold).fontColor('#E0E6F0')
-            TextInput({ text: $$this.inputIP, placeholder: '请输入设备IP(如:10.11.11.123)' })
+              .textAlign(TextAlign.Center)
+            TextInput({ text: $$this.inputIP, placeholder: '请输入设备IP' })
               .backgroundColor('#1A2A3A')
               .fontColor('#E0E6F0')
               .placeholderColor('#6B7280')
               .margin({ top: 20 })
               .id('deviceNameInput')
               .inputFilter('[0-9.]+')
-            Row({ space: 20 }) {
-              Button('取消').fontColor('#E0E6F0').backgroundColor('#3A4A5C')
+              .width('100%')
+            Row({ space: 20 }) {              Button('取消').fontColor('#E0E6F0').backgroundColor('#3A4A5C')
                 .onClick(() => {
                   this.showAddDeviceDialog = false;
                 })
@@ -229,7 +232,7 @@ Column() {
             }
             .margin({ top: 20 })
           }
-          .width(280)
+          .width(340)
           .padding(24)
           .backgroundColor('#1A2A3A')
           .borderRadius(16)

@@ -50,6 +50,9 @@ export struct VoiceInputButton {
           this.statusText = '识别完成';
           this.isRecording = false;
           this.audioManager.stop();
+          setTimeout(() => {
+            this.recognizedText = '';
+          }, 2000);
         }
       },
       onError: (error: Error) => {
