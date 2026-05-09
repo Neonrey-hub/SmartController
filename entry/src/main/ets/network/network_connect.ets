@@ -49,7 +49,7 @@ export class WebSocket_connect {
    */
   @Trace state:boolean = false
   private session_id : String = '';
-  private url: string = `ws://${API_URL}:8000/xiaozhi/v1/`;
+  // private url: string = `ws://${API_URL}:8000/xiaozhi/v1/`;
   // 存储未完成的请求，key 为 requestId
   private pendingRequests: Map<string, PendingRequest> = new Map();
   // 缓存的设备标识，在 connect 时获取并存储
