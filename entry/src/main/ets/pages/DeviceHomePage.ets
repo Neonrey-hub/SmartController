@@ -9,7 +9,7 @@ import { ControlState, controlState } from '../models/ControlState'
 import { network_connect, WebSocket_connect } from "ets/network/network_connect";
 import { promptAction} from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
-import { data_setting } from "ets/network/get_data";
+import { data_setting,setting } from "ets/network/get_data";
 import { API_URL, ChangeApiIP } from "ets/network/API_URL";
 import { generateAlarms } from '../utils/AlarmUtils'
 import { SensorItem } from '../components/sensor/IndustrialSensorCard'
@@ -20,6 +20,7 @@ let globalEventLogs: EventLogItem[] = [];
 @ComponentV2
 export struct DeviceHomePage {
   @Local network_connect: WebSocket_connect = network_connect
+  @Local data_setting:setting = data_setting
   @Local deviceName: string = 'SmartController';
   @Local updateTime: string = '';
   @Local logItems: EventLogItem[] = globalEventLogs;

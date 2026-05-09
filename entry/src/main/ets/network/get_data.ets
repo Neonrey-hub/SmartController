@@ -98,6 +98,7 @@ export class setting{
       "updated_at": "2026-04-29T06:54:07.850025+00:00",
       "last_source": "real-bridge-readback"}
   }
+  @Trace state = false
   constructor(){
     this.check_running()
     this.startAutoSend()
@@ -195,17 +196,20 @@ export class setting{
         // 强转成你定义的类型（关键！）
         this.get_data = JSON.parse(response.result as string) as ApiResponse;
         console.log("请求成功",this.get_data.actuators.brightness_percent,this.get_data.actuators.fan_percent);
+        this.state = true
         // console.log("传感器数组数据：", this.get_data.sensor.pretty);
         this.check_running()
         return this.get_data;
       } else {
         console.error("请求失败，状态码：", response.responseCode);
+        this.state = false
         return null;
       }
 
     } catch (err) {
       console.error("请求异常：", (err as BusinessError).message);
-      this.get_data = this.simulateUpdatedData();
+      // this.get_data = this.simulateUpdatedData();
+      this.state = false
       return null;
     }
   }
