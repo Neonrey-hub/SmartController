@@ -2,6 +2,8 @@ import http from '@ohos.net.http';
 import { BusinessError } from '@ohos.base';
 import { API_URL } from "ets/network/API_URL";
 import { isnetwork_connect } from "ets/network/isconnect";
+import { controlState } from 'ets/models/ControlState'
+
 // 根接口返回类型
 export interface ApiResponse{
   "success": true,
@@ -169,8 +171,8 @@ export class setting{
           yellow: oldData.actuators.coil_labels.yellow,
           red: oldData.actuators.coil_labels.red,
         },
-        brightness_percent: oldData.actuators.brightness_percent,
-        fan_percent: oldData.actuators.fan_percent,
+        brightness_percent: Math.random()*100,
+        fan_percent: Math.random()*100,
         updated_at: new Date().toISOString(),
         last_source: oldData.actuators.last_source,
       },
@@ -203,13 +205,16 @@ export class setting{
         return this.get_data;
       } else {
         console.error("请求失败，状态码：", response.responseCode);
+        // controlState.smallLightBrightness = Math.random()*100
+        // controlState.fanSpeed = Math.random()*100
+        // controlState.actuatorActive = this.check_running()
         this.state = false
         return null;
       }
 
     } catch (err) {
       console.error("请求异常：", (err as BusinessError).message);
-      // this.get_data = this.simulateUpdatedData();
+      this.get_data = this.simulateUpdatedData();
       this.state = false
       return null;
     }
