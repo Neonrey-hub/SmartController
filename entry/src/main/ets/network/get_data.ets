@@ -190,6 +190,7 @@ export class setting{
         method: http.RequestMethod.GET,
         connectTimeout: 10000,
         readTimeout: 10000
+
       });
 
       if (response.responseCode === 200) {

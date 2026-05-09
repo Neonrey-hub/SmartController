@@ -109,16 +109,7 @@ Column() {
                   this.showMenu = false;
                   this.showAddDeviceDialog = true;
                 })
-              Divider().color('#3A4A5C').strokeWidth(1)
-              Text('刷新设备').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
-                .onClick(() => {
-                  this.showMenu = false;
-                })
-              Divider().color('#3A4A5C').strokeWidth(1)
-              Text('设置').fontSize(14).fontColor('#E0E6F0').width('100%').padding(12)
-                .onClick(() => {
-                  this.showMenu = false;
-                })
+              
             }
             .width(120)
             .backgroundColor('#1A2A3A')
@@ -184,13 +175,26 @@ Column() {
 
         if (this.showAddDeviceDialog) {
           Column() {
+            Blank()
+              .backgroundColor('#00000080')
+              .onClick(() => {
+                this.showAddDeviceDialog = false;
+              })
+          }
+          .width('100%')
+          .height('100%')
+          .position({ x: 0, y: 0 })
+          .zIndex(150)
+
+          Column() {
             Text(`IP:${API_URL?? "--"}`).fontSize(18).fontWeight(FontWeight.Bold).fontColor('#E0E6F0')
-            TextInput({ text: $$this.inputIP, placeholder: '请输入设备IP' })
+            TextInput({ text: $$this.inputIP, placeholder: '请输入设备IP(如:10.11.11.123)' })
               .backgroundColor('#1A2A3A')
               .fontColor('#E0E6F0')
               .placeholderColor('#6B7280')
               .margin({ top: 20 })
               .id('deviceNameInput')
+              .inputFilter('[0-9.]+')
             Row({ space: 20 }) {
               Button('取消').fontColor('#E0E6F0').backgroundColor('#3A4A5C')
                 .onClick(() => {
@@ -200,9 +204,12 @@ Column() {
                 .onClick(() => {
                   if (this.inputIP) {
                     ChangeApiIP(this.inputIP);
+                    promptAction.showToast({ message: 'IP修改成功', duration: 2000 });
                     this.inputIP = ""
+                    this.showAddDeviceDialog = false;
+                  } else {
+                    promptAction.showToast({ message: 'IP不能为空', duration: 2000 });
                   }
-                  this.showAddDeviceDialog = false;
                 })
             }
             .margin({ top: 20 })

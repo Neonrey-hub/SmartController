@@ -55,6 +55,10 @@
     {
       "name": "pie_chart_purple",
       "value": "#9B59B6"
+    },
+    {
+      "name": "startBackgroundColor",
+      "value": "#051224"
     }
   ]
 }
