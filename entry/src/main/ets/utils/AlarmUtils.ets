@@ -16,17 +16,17 @@ export function generateAlarms(sensorItems: SensorItem[]): AlarmItem[] {
   let id = 0
 
   const ruleMap = new Map<string, AlarmRuleItem>([
-    ['二氧化碳', { warn: 900, err: 1100 }],
-    ['PM2.5', { warn: 0.5, err: 10 }],
-    ['PM10', { warn: 100, err: 150 }],
-    ['总挥发物', { warn: 1.2, err: 1.6 }],
-    ['温度', { warnLow: 20, warnHigh: 21, errLow: 19, errHigh: 22 }],
-    ['湿度', { warnLow: 35, warnHigh: 70, errLow: 30, errHigh: 75 }],
-    ['甲醛', { warn: 0.001, err: 0.01 }],
-    ['一氧化碳', { warn: 3, err: 6 }],
-    ['臭氧', { warn: 0.2, err: 0.35 }],
-    ['噪声', { warn: 65, err: 72 }]
-  ])
+    ['二氧化碳', { warn: 1000, err: 1500 }],
+    ['TVOC总挥发物', { warn: 0.8, err: 1.2 }],
+    ['甲醛', { warn: 0.08, err: 0.15 }],
+    ['PM2.5', { warn: 75, err: 115 }],
+    ['湿度', { warnLow: 30, warnHigh: 75, errLow: 25, errHigh: 85 }],
+    ['温度', { warnLow: 18, warnHigh: 30, errLow: 15, errHigh: 35 }],
+    ['PM10', { warn: 150, err: 250 }],
+    ['PM1.0', { warn: 80, err: 120 }],
+    ['光照度', { warn: 1500, err: 1800 }],
+    ['噪声', { warn: 70, err: 85 }],
+  ]);
 
   sensorItems.forEach(item => {
     const value = parseFloat(item.value)
