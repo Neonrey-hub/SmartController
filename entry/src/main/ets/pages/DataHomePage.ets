@@ -1,37 +1,19 @@
 // entry/src/main/ets/pages/DataHomePage.ets
 import { EdgeDataQuality } from '../components/sensor/EdgeDataQuality'
-import { IndustrialSensorCard, SensorItem } from '../components/sensor/IndustrialSensorCard'
+import { SensorItem } from '../components/sensor/IndustrialSensorCard'
 import { TrendChartCard } from './TrendChartCard'
 import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
-import { data_setting, setting, ApiResponse, data_array } from "ets/network/get_data"
+import { data_setting, setting, data_array } from "ets/network/get_data"
 import { generateAlarms } from '../utils/AlarmUtils'
 import { AppColors } from '../constants/AppColors'
 import { AppDimensions } from '../constants/AppDimensions'
-
-// 模拟传感器数据项接口
-interface SimSensorItem {
-  tag: string
-  value: number
-  unit: string
-  scale: number
-}
-
-const SIM_TAGS = ['二氧化碳', 'PM2.5', 'PM10', '总挥发物', '温度', '湿度', '甲醛', '一氧化碳', '臭氧', '噪声']
-const SIM_UNITS = ['ppm', 'μg/m³', 'μg/m³', 'mg/m³', '℃', '%RH', 'mg/m³', 'ppm', 'ppm', 'dB']
-const SIM_SCALES = [1, 1, 1, 0.001, 1, 1, 0.001, 1, 1, 1]
-const SIM_MIN = [450, 5, 10, 0.05, 16, 30, 0.01, 0, 0, 35]
-const SIM_MAX = [1200, 120, 180, 1.8, 32, 75, 0.9, 8, 0.6, 78]
 
 @ComponentV2
 export struct DataHomePage {
   @Local data_source: setting = data_setting
   @Local comfortScore: number = 50
-  @Local co2Value: string = '--'
-  @Local tempValue: string = '--'
-  @Local humValue: data_array = this.data_source.get_data.sensor.pretty[6] //湿度
-  @Local noiseValue: string = '--'
   @Local alarmItems: AlarmItem[] = []
   @Local abnormalCount: number = 0
   private timerId: number = -1
@@ -51,9 +33,7 @@ export struct DataHomePage {
 
   private getSensorValue(tag: string): number | undefined {
     const pretty = this.data_source.get_data?.sensor?.pretty
-    if (!pretty) {
-      return undefined
-    }
+    if (!pretty) return undefined
     const item = pretty.find(s => s.tag === tag)
     return item ? item.value : undefined
   }
@@ -63,11 +43,6 @@ export struct DataHomePage {
     const temp = this.getSensorValue('温度')
     const hum = this.getSensorValue('湿度')
     const noise = this.getSensorValue('噪声')
-
-    // this.co2Value = co2 !== undefined ? co2.toFixed(0) : '--'
-    // this.tempValue = temp !== undefined ? temp.toFixed(1) : '--'
-    // this.humValue = hum !== undefined ? hum.toFixed(1) : '--'
-    // this.noiseValue = noise !== undefined ? noise.toFixed(1) : '--'
 
     const co2Score = co2 !== undefined ? Math.max(0, Math.min(100, 100 - (co2 - 450) / 8.5)) : 50
     const tempScore = temp !== undefined ? Math.max(0, Math.min(100, 100 - Math.abs(temp - 24) * 7.5)) : 50
@@ -98,6 +73,24 @@ export struct DataHomePage {
     return items
   }
 
+  // 辅助获取四个指标的显示数值
+  private getCo2Display(): string {
+    const v = this.getSensorValue('二氧化碳')
+    return v !== undefined ? v.toFixed(0) : '--'
+  }
+  private getTempDisplay(): string {
+    const v = this.getSensorValue('温度')
+    return v !== undefined ? v.toFixed(1) : '--'
+  }
+  private getHumDisplay(): string {
+    const v = this.getSensorValue('湿度')
+    return v !== undefined ? v.toFixed(1) : '--'
+  }
+  private getNoiseDisplay(): string {
+    const v = this.getSensorValue('噪声')
+    return v !== undefined ? v.toFixed(1) : '--'
+  }
+
   build() {
     NavDestination() {
       Column() {
@@ -113,70 +106,17 @@ export struct DataHomePage {
 
         Scroll() {
           Column({ space: AppDimensions.SPACING_LG }) {
-            // 综合工况指数
+            // ========== 综合工况指数（修改四个卡片为 CO₂、温度、湿度、噪声） ==========
             Column() {
               Row({ space: 8 }) {
+                // 左侧两个卡片：CO₂、温度
                 Column({ space: 8 }) {
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[0].tag,
-                  //   this.data_source.get_data.sensor.pretty[0].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[0].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[0].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[0].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[0].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
-
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[1].tag,
-                  //   this.data_source.get_data.sensor.pretty[1].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[1].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[1].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[1].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[1].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
+                  this.buildSideCard('CO₂', this.getCo2Display(), 'ppm')
+                  this.buildSideCard('温度', this.getTempDisplay(), '℃')
                 }
                 .layoutWeight(1)
 
+                // 圆环进度
                 Stack({ alignContent: Alignment.Center }) {
                   Progress({ value: this.comfortScore, total: 100, type: ProgressType.Ring })
                     .backgroundColor('rgba(26, 48, 80, 0.6)')
@@ -203,64 +143,10 @@ export struct DataHomePage {
                 }
                 .layoutWeight(1.5)
 
+                // 右侧两个卡片：湿度、噪声
                 Column({ space: 8 }) {
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[3].tag,
-                  //   this.data_source.get_data.sensor.pretty[3].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[3].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[3].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[3].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[3].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
-
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[2].tag,
-                  //   this.data_source.get_data.sensor.pretty[2].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[2].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[2].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[2].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[2].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
+                  this.buildSideCard('湿度', this.getHumDisplay(), '%RH')
+                  this.buildSideCard('噪声', this.getNoiseDisplay(), 'dB')
                 }
                 .layoutWeight(1)
               }
@@ -273,85 +159,58 @@ export struct DataHomePage {
             .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
             .shadow({ radius: 20, color: 'rgba(0, 229, 255, 0.1)', offsetY: 8 })
 
-            // IndustrialSensorCard({ sensorItems: this.data_source.get_data.sensor.pretty })
-            List({ space: AppDimensions.SPACING_SM }) {
-              ListItem() {
-                Row() {
-                  Text('工业现场十合一传感器')
-                    .fontSize(AppDimensions.FONT_SIZE_MD)
-                    .fontWeight(FontWeight.Bold)
-                    .fontColor(AppColors.TEXT_SECONDARY)
-                    .maxLines(1)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    .layoutWeight(1)
-                }
-                .width('100%')
-                .justifyContent(FlexAlign.Start)
-                .alignItems(VerticalAlign.Center)
+            // ========== 工业现场十合一传感器（两列网格卡片） ==========
+            Column() {
+              Row() {
+                Text('工业现场十合一传感器')
+                  .fontSize(18)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor('#ddf7ff')
+                Text('边缘实时采集与状态感知')
+                  .fontSize(13)
+                  .fontColor('#6d98b2')
+                  .layoutWeight(1)
+                  .textAlign(TextAlign.End)
               }
+              .width('100%')
+              .margin({ bottom: 8 })
 
-              ForEach(this.data_source.get_data.sensor.pretty, (item: data_array) => {
-                ListItem() {
-                  Row() {
-                    // 传感器名称
-                    Text(item.tag)
-                      .fontSize(AppDimensions.FONT_SIZE_SM)
-                      .fontColor(AppColors.TEXT_TERTIARY)
-                      .maxLines(1)
-                      .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      .layoutWeight(1)
-
-
-                    // 数值 + 单位
-                    Row({ space: 39 }) {
-                      Text(item.value.toFixed(1).toString())
-                        .fontSize(AppDimensions.FONT_SIZE_XL)
-                        .fontColor(AppColors.TEXT_PRIMARY)
+              Grid() {
+                ForEach(this.data_source.get_data.sensor.pretty, (item: data_array) => {
+                  GridItem() {
+                    Column() {
+                      Text(item.tag)
+                        .fontSize(14)
+                        .fontColor('#93c7df')
+                      Text(item.value.toFixed(1))
+                        .fontSize(24)
                         .fontWeight(FontWeight.Bold)
-                        .maxLines(1)
-                        .textOverflow({ overflow: TextOverflow.Ellipsis })
-                        .width("70%")
-                        .textAlign(TextAlign.Start)
-                        .offset({ x: "60%" })
-
-
+                        .fontColor('#ebfbff')
+                        .margin({ top: 4, bottom: 4 })
                       Text(item.unit)
-                        .fontSize(AppDimensions.FONT_SIZE_XS)
-                        .fontColor(AppColors.TEXT_DISABLED)
-                        .maxLines(1)
+                        .fontSize(12)
+                        .fontColor('#6fa6c0')
                     }
-                    .layoutWeight(1)
-                    .justifyContent(FlexAlign.Start)
-                    .alignItems(VerticalAlign.Bottom)
+                    .width('100%')
+                    .padding(12)
+                    .backgroundColor('rgba(8,34,66,0.86)')
+                    .borderRadius(10)
+                    .border({ width: 1, color: 'rgba(95,227,255,0.2)' })
+                    .alignItems(HorizontalAlign.Start)
                   }
-                  .width('100%')
-                  .padding({
-                    left: AppDimensions.SPACING_MD,
-                    right: AppDimensions.SPACING_MD,
-                    top: AppDimensions.SPACING_SM,
-                    bottom: AppDimensions.SPACING_SM
-                  })
-                  .backgroundColor('#0D1B2A')
-                  .borderRadius(AppDimensions.RADIUS_MD)
-                  .justifyContent(FlexAlign.SpaceBetween)
-                  .alignItems(VerticalAlign.Center)
-                }
-              })
+                }, (item: data_array) => item.tag)
+              }
+              .columnsTemplate('1fr 1fr')
+              .rowsGap(10)
+              .columnsGap(10)
             }
             .width('100%')
-            .padding(AppDimensions.SPACING_LG)
-            .backgroundColor(AppColors.CARD_BG)
-            .borderRadius(AppDimensions.RADIUS_LG)
+            .padding(12)
+            .backgroundColor('rgba(18,30,58,0.8)')
+            .borderRadius(16)
+            .border({ width: 1, color: 'rgba(0,229,255,0.25)' })
 
-            // .width('100%')
-            // .borderRadius(16)
-            // .backgroundColor('rgba(18, 30, 58, 0.7)')
-            // .border({ width: 1, color: 'rgba(0, 229, 255, 0.2)' })
-            // .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
-
-            // TrendChartCard()
-            //   .width('100%')
-
+            // 边缘数据质量
             EdgeDataQuality({ abnormalCount: this.abnormalCount })
               .width('100%')
               .borderRadius(16)
@@ -359,21 +218,15 @@ export struct DataHomePage {
               .border({ width: 1, color: 'rgba(0, 229, 255, 0.2)' })
               .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
 
+            // 告警队列（按需取消注释）
             // AlarmQueue({ alarmItems: this.alarmItems })
             //   .width('100%')
-            //   .layoutWeight(1)
             //   .borderRadius(16)
             //   .backgroundColor('rgba(18, 30, 58, 0.7)')
             //   .border({ width: 1, color: 'rgba(255, 91, 110, 0.3)' })
-            //   .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
           }
           .width('100%')
-          .padding({
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: 32
-          })
+          .padding({ left: 16, right: 16, top: 16, bottom: 32 })
           .backgroundColor(AppColors.PRIMARY_BG)
         }
         .layoutWeight(1)
