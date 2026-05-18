@@ -1,14 +1,13 @@
 // entry/src/main/ets/pages/DataHomePage.ets
 import { EdgeDataQuality } from '../components/sensor/EdgeDataQuality'
 import { SensorItem } from '../components/sensor/IndustrialSensorCard'
-import { TrendChartCard } from './TrendChartCard'
-import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { data_setting, setting, data_array } from "ets/network/get_data"
 import { generateAlarms } from '../utils/AlarmUtils'
 import { AppColors } from '../constants/AppColors'
 import { AppDimensions } from '../constants/AppDimensions'
+import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 
 @ComponentV2
 export struct DataHomePage {
@@ -73,7 +72,6 @@ export struct DataHomePage {
     return items
   }
 
-  // 辅助获取四个指标的显示数值
   private getCo2Display(): string {
     const v = this.getSensorValue('二氧化碳')
     return v !== undefined ? v.toFixed(0) : '--'
@@ -106,17 +104,15 @@ export struct DataHomePage {
 
         Scroll() {
           Column({ space: AppDimensions.SPACING_LG }) {
-            // ========== 综合工况指数（修改四个卡片为 CO₂、温度、湿度、噪声） ==========
+            // 综合工况指数
             Column() {
               Row({ space: 8 }) {
-                // 左侧两个卡片：CO₂、温度
                 Column({ space: 8 }) {
                   this.buildSideCard('CO₂', this.getCo2Display(), 'ppm')
                   this.buildSideCard('温度', this.getTempDisplay(), '℃')
                 }
                 .layoutWeight(1)
 
-                // 圆环进度
                 Stack({ alignContent: Alignment.Center }) {
                   Progress({ value: this.comfortScore, total: 100, type: ProgressType.Ring })
                     .backgroundColor('rgba(26, 48, 80, 0.6)')
@@ -143,7 +139,6 @@ export struct DataHomePage {
                 }
                 .layoutWeight(1.5)
 
-                // 右侧两个卡片：湿度、噪声
                 Column({ space: 8 }) {
                   this.buildSideCard('湿度', this.getHumDisplay(), '%RH')
                   this.buildSideCard('噪声', this.getNoiseDisplay(), 'dB')
@@ -159,7 +154,7 @@ export struct DataHomePage {
             .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
             .shadow({ radius: 20, color: 'rgba(0, 229, 255, 0.1)', offsetY: 8 })
 
-            // ========== 工业现场十合一传感器（两列网格卡片） ==========
+            // 工业现场十合一传感器（数据已由 get_data 层保证完整且顺序正确）
             Column() {
               Row() {
                 Text('工业现场十合一传感器')
@@ -182,14 +177,20 @@ export struct DataHomePage {
                       Text(item.tag)
                         .fontSize(14)
                         .fontColor('#93c7df')
-                      Text(item.value.toFixed(1))
-                        .fontSize(24)
-                        .fontWeight(FontWeight.Bold)
-                        .fontColor('#ebfbff')
-                        .margin({ top: 4, bottom: 4 })
-                      Text(item.unit)
-                        .fontSize(12)
-                        .fontColor('#6fa6c0')
+                        .margin({ bottom: 6 })
+                      Row({ space: 4 }) {
+                        Text(item.value.toFixed(1))
+                          .fontSize(24)
+                          .fontWeight(FontWeight.Bold)
+                          .fontColor('#ebfbff')
+                        Text(item.unit)
+                          .fontSize(13)
+                          .fontColor('#6fa6c0')
+                          .alignSelf(ItemAlign.End)
+                      }
+                      .width('100%')
+                      .justifyContent(FlexAlign.Start)
+                      .alignItems(VerticalAlign.Bottom)
                     }
                     .width('100%')
                     .padding(12)
@@ -217,13 +218,6 @@ export struct DataHomePage {
               .backgroundColor('rgba(18, 30, 58, 0.7)')
               .border({ width: 1, color: 'rgba(0, 229, 255, 0.2)' })
               .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
-
-            // 告警队列（按需取消注释）
-            // AlarmQueue({ alarmItems: this.alarmItems })
-            //   .width('100%')
-            //   .borderRadius(16)
-            //   .backgroundColor('rgba(18, 30, 58, 0.7)')
-            //   .border({ width: 1, color: 'rgba(255, 91, 110, 0.3)' })
           }
           .width('100%')
           .padding({ left: 16, right: 16, top: 16, bottom: 32 })
