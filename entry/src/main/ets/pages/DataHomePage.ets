@@ -1,39 +1,21 @@
 // entry/src/main/ets/pages/DataHomePage.ets
 import { EdgeDataQuality } from '../components/sensor/EdgeDataQuality'
-import { IndustrialSensorCard, SensorItem } from '../components/sensor/IndustrialSensorCard'
-import { TrendChartCard } from './TrendChartCard'
-import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
+import { SensorItem } from '../components/sensor/IndustrialSensorCard'
 import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
-import { data_setting, setting, ApiResponse, data_array } from "ets/network/get_data"
+import { data_setting, setting, data_array } from "ets/network/get_data"
 import { generateAlarms } from '../utils/AlarmUtils'
 import { AppColors } from '../constants/AppColors'
 import { AppDimensions } from '../constants/AppDimensions'
-
-// 模拟传感器数据项接口
-interface SimSensorItem {
-  tag: string
-  value: number
-  unit: string
-  scale: number
-}
-
-const SIM_TAGS = ['二氧化碳', 'PM2.5', 'PM10', '总挥发物', '温度', '湿度', '甲醛', '一氧化碳', '臭氧', '噪声']
-const SIM_UNITS = ['ppm', 'μg/m³', 'μg/m³', 'mg/m³', '℃', '%RH', 'mg/m³', 'ppm', 'ppm', 'dB']
-const SIM_SCALES = [1, 1, 1, 0.001, 1, 1, 0.001, 1, 1, 1]
-const SIM_MIN = [450, 5, 10, 0.05, 16, 30, 0.01, 0, 0, 35]
-const SIM_MAX = [1200, 120, 180, 1.8, 32, 75, 0.9, 8, 0.6, 78]
+import { AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
 
 @ComponentV2
 export struct DataHomePage {
   @Local data_source: setting = data_setting
   @Local comfortScore: number = 50
-  @Local co2Value: string = '--'
-  @Local tempValue: string = '--'
-  @Local humValue: data_array = this.data_source.get_data.sensor.pretty[6] //湿度
-  @Local noiseValue: string = '--'
   @Local alarmItems: AlarmItem[] = []
   @Local abnormalCount: number = 0
+  @Local refreshTrigger: number = 0   // 强制刷新UI的触发器
   private timerId: number = -1
 
   aboutToAppear() {
@@ -42,6 +24,7 @@ export struct DataHomePage {
     this.timerId = setInterval(() => {
       this.updateAllValues()
       this.updateAlarms()
+      this.refreshTrigger++   // 每次数据更新都触发UI重绘
     }, 1000)
   }
 
@@ -51,9 +34,7 @@ export struct DataHomePage {
 
   private getSensorValue(tag: string): number | undefined {
     const pretty = this.data_source.get_data?.sensor?.pretty
-    if (!pretty) {
-      return undefined
-    }
+    if (!pretty) return undefined
     const item = pretty.find(s => s.tag === tag)
     return item ? item.value : undefined
   }
@@ -63,11 +44,6 @@ export struct DataHomePage {
     const temp = this.getSensorValue('温度')
     const hum = this.getSensorValue('湿度')
     const noise = this.getSensorValue('噪声')
-
-    // this.co2Value = co2 !== undefined ? co2.toFixed(0) : '--'
-    // this.tempValue = temp !== undefined ? temp.toFixed(1) : '--'
-    // this.humValue = hum !== undefined ? hum.toFixed(1) : '--'
-    // this.noiseValue = noise !== undefined ? noise.toFixed(1) : '--'
 
     const co2Score = co2 !== undefined ? Math.max(0, Math.min(100, 100 - (co2 - 450) / 8.5)) : 50
     const tempScore = temp !== undefined ? Math.max(0, Math.min(100, 100 - Math.abs(temp - 24) * 7.5)) : 50
@@ -113,61 +89,25 @@ export struct DataHomePage {
 
         Scroll() {
           Column({ space: AppDimensions.SPACING_LG }) {
-            // 综合工况指数
+            // ========== 综合工况指数 ==========
             Column() {
-              Row({ space: 8 }) {
-                Column({ space: 8 }) {
-                  // 二氧化碳卡片
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[0].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[0].value.toFixed(1).toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[0].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
+              Column({ space: 4 }) {
+                Text('综合工况指数')
+                  .fontSize(18)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor(AppColors.TEXT_PRIMARY)
+                Text('工业环境主指标')
+                  .fontSize(11)
+                  .fontColor(AppColors.TEXT_TERTIARY)
+              }
+              .width('100%')
+              .alignItems(HorizontalAlign.Start)
+              .padding({ left: 8, top: 8, bottom: 8 })
 
-                  // PM2.5卡片
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[1].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[1].value.toFixed(1).toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[1].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
+              Row({ space: 8 }) {
+                Column({ space: 12 }) {
+                  this.buildMetricCard('CO₂', this.getSensorValue('二氧化碳'), 'ppm', true)
+                  this.buildMetricCard('湿度', this.getSensorValue('湿度'), '%RH', false)
                 }
                 .layoutWeight(1)
 
@@ -175,85 +115,27 @@ export struct DataHomePage {
                   Progress({ value: this.comfortScore, total: 100, type: ProgressType.Ring })
                     .backgroundColor('rgba(26, 48, 80, 0.6)')
                     .style({ strokeWidth: 14 })
-                    .width(180)
-                    .height(180)
-
+                    .width(160).height(160)
                   Column() {
                     Text(`${this.comfortScore}`)
-                      .fontSize(48)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#DDF8FF')
+                      .fontSize(42).fontWeight(FontWeight.Bold).fontColor('#DDF8FF')
                     Text('舒适指数')
-                      .fontSize(14)
-                      .fontColor('#86B8CF')
+                      .fontSize(12).fontColor('#86B8CF')
                   }
-                  .width(120)
-                  .height(120)
-                  .borderRadius(60)
-                  .justifyContent(FlexAlign.Center)
-                  .alignItems(HorizontalAlign.Center)
+                  .width(100).height(100).borderRadius(50)
+                  .justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
                   .backgroundColor('rgba(13, 34, 60, 0.9)')
-                  .shadow({ radius: 12, color: 'rgba(56, 189, 248, 0.2)', offsetY: 4 })
                 }
-                .layoutWeight(1.5)
+                .layoutWeight(1.2)
 
-                Column({ space: 8 }) {
-                  // PM10卡片
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[3].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[3].value.toFixed(1).toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[3].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
-
-                  // 总挥发物卡片
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[2].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[2].value.toFixed(1).toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[2].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
+                Column({ space: 12 }) {
+                  this.buildMetricCard('温度', this.getSensorValue('温度'), '℃', false)
+                  this.buildMetricCard('噪声', this.getSensorValue('噪声'), 'dB', false)
                 }
                 .layoutWeight(1)
               }
               .width('100%')
-              .padding(16)
+              .padding({ left: 8, right: 8, bottom: 16 })
             }
             .width('100%')
             .borderRadius(20)
@@ -261,40 +143,43 @@ export struct DataHomePage {
             .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
             .shadow({ radius: 20, color: 'rgba(0, 229, 255, 0.1)', offsetY: 8 })
 
-            // 工业现场十合一传感器 - 方块网格模式
+            // ========== 工业现场十合一传感器（方块网格 + 副标题） ==========
             Column() {
-              Row() {
+              // 主标题 + 副标题
+              Column({ space: 4 }) {
                 Text('工业现场十合一传感器')
                   .fontSize(AppDimensions.FONT_SIZE_MD)
                   .fontWeight(FontWeight.Bold)
                   .fontColor(AppColors.TEXT_SECONDARY)
                   .maxLines(1)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
-                  .layoutWeight(1)
+                Text('边缘实时采集与状态感知')
+                  .fontSize(11)
+                  .fontColor(AppColors.TEXT_TERTIARY)
               }
               .width('100%')
-              .justifyContent(FlexAlign.Start)
-              .alignItems(VerticalAlign.Center)
+              .alignItems(HorizontalAlign.Start)
               .padding({ bottom: AppDimensions.SPACING_MD })
 
               Grid() {
                 ForEach(this.data_source.get_data.sensor.pretty, (item: data_array, index: number) => {
                   GridItem() {
                     Column({ space: AppDimensions.SPACING_SM }) {
+                      // 传感器名称
                       Text(item.tag)
                         .fontSize(AppDimensions.FONT_SIZE_MD)
                         .fontColor(AppColors.TEXT_SECONDARY)
                         .fontWeight(FontWeight.Medium)
                         .maxLines(1)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-                      Text(item.value.toFixed(1))
-                        .fontSize(AppDimensions.FONT_SIZE_XXL)
-                        .fontColor(AppColors.TEXT_PRIMARY)
+                      // 数值（保留两位小数）
+                      Text(item.value.toFixed(2))
+                        .fontSize(26)
                         .fontWeight(FontWeight.Bold)
+                        .fontColor(AppColors.TEXT_PRIMARY)
                         .maxLines(1)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
-
+                      // 单位
                       Text(item.unit)
                         .fontSize(AppDimensions.FONT_SIZE_SM)
                         .fontColor(AppColors.TEXT_TERTIARY)
@@ -308,7 +193,7 @@ export struct DataHomePage {
                     .borderWidth(1)
                     .borderColor('rgba(92, 210, 255, 0.25)')
                   }
-                }, (item: data_array, index: number) => index.toString())
+                }, (item: data_array, index: number) => index.toString() + '_' + this.refreshTrigger)  // 强制刷新
               }
               .columnsTemplate('1fr 1fr')
               .columnsGap(AppDimensions.SPACING_MD)
@@ -320,31 +205,16 @@ export struct DataHomePage {
             .backgroundColor(AppColors.CARD_BG)
             .borderRadius(AppDimensions.RADIUS_LG)
 
-            // TrendChartCard()
-            //   .width('100%')
-
+            // 边缘数据质量
             EdgeDataQuality({ abnormalCount: this.abnormalCount })
               .width('100%')
               .borderRadius(16)
               .backgroundColor('rgba(18, 30, 58, 0.7)')
               .border({ width: 1, color: 'rgba(0, 229, 255, 0.2)' })
               .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
-
-            // AlarmQueue({ alarmItems: this.alarmItems })
-            //   .width('100%')
-            //   .layoutWeight(1)
-            //   .borderRadius(16)
-            //   .backgroundColor('rgba(18, 30, 58, 0.7)')
-            //   .border({ width: 1, color: 'rgba(255, 91, 110, 0.3)' })
-            //   .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
           }
           .width('100%')
-          .padding({
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: 32
-          })
+          .padding({ left: 16, right: 16, top: 16, bottom: 32 })
           .backgroundColor(AppColors.PRIMARY_BG)
         }
         .layoutWeight(1)
@@ -367,30 +237,41 @@ export struct DataHomePage {
   }
 
   @Builder
-  buildSideCard(label: string, value: string, unit: string) {
+  buildMetricCard(label: string, value: number | undefined, unit: string, isCo2: boolean = false) {
     Column() {
       Text(label)
-        .fontSize(11)
+        .fontSize(12)
         .fontColor('#86B9D2')
         .width('100%')
         .textAlign(TextAlign.Center)
-      Text(value)
-        .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .fontColor('#E9FBFF')
-        .width('100%')
-        .textAlign(TextAlign.Center)
-        .margin({ top: 2 })
+      if (value !== undefined) {
+        Text(isCo2 ? value.toFixed(0) : value.toFixed(1))
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#E9FBFF')
+          .width('100%')
+          .textAlign(TextAlign.Center)
+          .margin({ top: 4 })
+      } else {
+        Text('--')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#E9FBFF')
+          .width('100%')
+          .textAlign(TextAlign.Center)
+          .margin({ top: 4 })
+      }
       Text(unit)
         .fontSize(10)
         .fontColor('#6FA6C0')
         .width('100%')
         .textAlign(TextAlign.Center)
+        .margin({ top: 2 })
     }
     .width('100%')
-    .padding({ top: 10, bottom: 10 })
+    .padding({ top: 12, bottom: 12 })
     .backgroundColor('rgba(8, 33, 63, 0.8)')
-    .borderRadius(10)
+    .borderRadius(12)
     .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
   }
 }
