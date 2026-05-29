@@ -144,7 +144,7 @@ export struct DataHomePage {
             .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
             .shadow({ radius: 20, color: 'rgba(0, 229, 255, 0.1)', offsetY: 8 })
 
-            // ========== 工业现场十合一传感器（Grid 网格布局，保持原数据刷新机制） ==========
+            // ========== 工业现场十合一传感器（网格布局，无副标题） ==========
             Column() {
               Text('工业现场十合一传感器')
                 .fontSize(AppDimensions.FONT_SIZE_MD)
@@ -182,7 +182,7 @@ export struct DataHomePage {
                     .borderWidth(1)
                     .borderColor('rgba(92, 210, 255, 0.25)')
                   }
-                }, (item: data_array, index: number) => index.toString()) // ✅ 与原 List 完全相同的 key 策略
+                }, (item: data_array, index: number) => index.toString())
               }
               .columnsTemplate('1fr 1fr')
               .columnsGap(AppDimensions.SPACING_MD)
