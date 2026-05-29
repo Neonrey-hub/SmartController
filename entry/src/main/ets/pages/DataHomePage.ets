@@ -117,63 +117,12 @@ export struct DataHomePage {
             Column() {
               Row({ space: 8 }) {
                 Column({ space: 8 }) {
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[0].tag,
-                  //   this.data_source.get_data.sensor.pretty[0].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[0].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[0].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[0].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[0].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
-
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[1].tag,
-                  //   this.data_source.get_data.sensor.pretty[1].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[1].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[1].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[1].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[1].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
+                  this.buildSideCard(this.data_source.get_data.sensor.pretty[0].tag,
+                    this.data_source.get_data.sensor.pretty[0].value.toFixed(1).toString(),
+                    this.data_source.get_data.sensor.pretty[0].unit)
+                  this.buildSideCard(this.data_source.get_data.sensor.pretty[1].tag,
+                    this.data_source.get_data.sensor.pretty[1].value.toFixed(1).toString(),
+                    this.data_source.get_data.sensor.pretty[1].unit)
                 }
                 .layoutWeight(1)
 
@@ -204,63 +153,12 @@ export struct DataHomePage {
                 .layoutWeight(1.5)
 
                 Column({ space: 8 }) {
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[3].tag,
-                  //   this.data_source.get_data.sensor.pretty[3].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[3].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[3].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[3].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[3].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
-
-                  // this.buildSideCard(this.data_source.get_data.sensor.pretty[2].tag,
-                  //   this.data_source.get_data.sensor.pretty[2].value.toFixed(1).toString(),
-                  //   this.data_source.get_data.sensor.pretty[2].unit)
-                  Column() {
-                    Text(this.data_source.get_data.sensor.pretty[2].tag)
-                      .fontSize(11)
-                      .fontColor('#86B9D2')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[2].value.toFixed(1)
-                      .toString())
-                      .fontSize(20)
-                      .fontWeight(FontWeight.Bold)
-                      .fontColor('#E9FBFF')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                      .margin({ top: 2 })
-                    Text(this.data_source.get_data.sensor.pretty[2].unit)
-                      .fontSize(10)
-                      .fontColor('#6FA6C0')
-                      .width('100%')
-                      .textAlign(TextAlign.Center)
-                  }
-                  .width('100%')
-                  .padding({ top: 10, bottom: 10 })
-                  .backgroundColor('rgba(8, 33, 63, 0.8)')
-                  .borderRadius(10)
-                  .border({ width: 1, color: 'rgba(92, 210, 255, 0.25)' })
+                  this.buildSideCard(this.data_source.get_data.sensor.pretty[3].tag,
+                    this.data_source.get_data.sensor.pretty[3].value.toFixed(1).toString(),
+                    this.data_source.get_data.sensor.pretty[3].unit)
+                  this.buildSideCard(this.data_source.get_data.sensor.pretty[2].tag,
+                    this.data_source.get_data.sensor.pretty[2].value.toFixed(1).toString(),
+                    this.data_source.get_data.sensor.pretty[2].unit)
                 }
                 .layoutWeight(1)
               }
@@ -273,81 +171,64 @@ export struct DataHomePage {
             .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
             .shadow({ radius: 20, color: 'rgba(0, 229, 255, 0.1)', offsetY: 8 })
 
-            // IndustrialSensorCard({ sensorItems: this.data_source.get_data.sensor.pretty })
-            List({ space: AppDimensions.SPACING_SM }) {
-              ListItem() {
-                Row() {
-                  Text('工业现场十合一传感器')
-                    .fontSize(AppDimensions.FONT_SIZE_MD)
-                    .fontWeight(FontWeight.Bold)
-                    .fontColor(AppColors.TEXT_SECONDARY)
-                    .maxLines(1)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    .layoutWeight(1)
-                }
-                .width('100%')
-                .justifyContent(FlexAlign.Start)
-                .alignItems(VerticalAlign.Center)
+            // 工业现场十合一传感器 - 方块网格模式
+            Column() {
+              Row() {
+                Text('工业现场十合一传感器')
+                  .fontSize(AppDimensions.FONT_SIZE_MD)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor(AppColors.TEXT_SECONDARY)
+                  .maxLines(1)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                  .layoutWeight(1)
               }
+              .width('100%')
+              .justifyContent(FlexAlign.Start)
+              .alignItems(VerticalAlign.Center)
+              .padding({ bottom: AppDimensions.SPACING_MD })
 
-              ForEach(this.data_source.get_data.sensor.pretty, (item: data_array) => {
-                ListItem() {
-                  Row() {
-                    // 传感器名称
-                    Text(item.tag)
-                      .fontSize(AppDimensions.FONT_SIZE_SM)
-                      .fontColor(AppColors.TEXT_TERTIARY)
-                      .maxLines(1)
-                      .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      .layoutWeight(1)
+              Grid() {
+                ForEach(this.data_source.get_data.sensor.pretty, (item: data_array, index: number) => {
+                  GridItem() {
+                    Column({ space: AppDimensions.SPACING_SM }) {
+                      Text(item.tag)
+                        .fontSize(AppDimensions.FONT_SIZE_MD)
+                        .fontColor(AppColors.TEXT_SECONDARY)
+                        .fontWeight(FontWeight.Medium)
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-
-                    // 数值 + 单位
-                    Row({ space: 39 }) {
-                      Text(item.value.toFixed(1).toString())
-                        .fontSize(AppDimensions.FONT_SIZE_XL)
+                      Text(item.value.toFixed(1))
+                        .fontSize(AppDimensions.FONT_SIZE_XXL)
                         .fontColor(AppColors.TEXT_PRIMARY)
                         .fontWeight(FontWeight.Bold)
                         .maxLines(1)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
-                        .width("70%")
-                        .textAlign(TextAlign.Start)
-                        .offset({ x: "60%" })
-
 
                       Text(item.unit)
-                        .fontSize(AppDimensions.FONT_SIZE_XS)
-                        .fontColor(AppColors.TEXT_DISABLED)
-                        .maxLines(1)
+                        .fontSize(AppDimensions.FONT_SIZE_SM)
+                        .fontColor(AppColors.TEXT_TERTIARY)
                     }
-                    .layoutWeight(1)
-                    .justifyContent(FlexAlign.Start)
-                    .alignItems(VerticalAlign.Bottom)
+                    .width('100%')
+                    .padding(AppDimensions.SPACING_MD)
+                    .backgroundColor('#0D1B2A')
+                    .borderRadius(AppDimensions.RADIUS_MD)
+                    .alignItems(HorizontalAlign.Center)
+                    .justifyContent(FlexAlign.Center)
+                    .borderWidth(1)
+                    .borderColor('rgba(92, 210, 255, 0.25)')
                   }
-                  .width('100%')
-                  .padding({
-                    left: AppDimensions.SPACING_MD,
-                    right: AppDimensions.SPACING_MD,
-                    top: AppDimensions.SPACING_SM,
-                    bottom: AppDimensions.SPACING_SM
-                  })
-                  .backgroundColor('#0D1B2A')
-                  .borderRadius(AppDimensions.RADIUS_MD)
-                  .justifyContent(FlexAlign.SpaceBetween)
-                  .alignItems(VerticalAlign.Center)
-                }
-              })
+                }, (item: data_array, index: number) => index.toString())
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(AppDimensions.SPACING_MD)
+              .rowsGap(AppDimensions.SPACING_MD)
+              .width('100%')
             }
             .width('100%')
             .padding(AppDimensions.SPACING_LG)
             .backgroundColor(AppColors.CARD_BG)
             .borderRadius(AppDimensions.RADIUS_LG)
-
-            // .width('100%')
-            // .borderRadius(16)
-            // .backgroundColor('rgba(18, 30, 58, 0.7)')
-            // .border({ width: 1, color: 'rgba(0, 229, 255, 0.2)' })
-            // .shadow({ radius: 12, color: 'rgba(0, 0, 0, 0.4)', offsetY: 4 })
 
             // TrendChartCard()
             //   .width('100%')
