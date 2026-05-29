@@ -15,7 +15,7 @@ export struct DataHomePage {
   @Local comfortScore: number = 50
   @Local alarmItems: AlarmItem[] = []
   @Local abnormalCount: number = 0
-  @Local refreshTrigger: number = 0   // 强制刷新UI的触发器
+  @Local refreshCounter: number = 0          // 强制刷新UI的计数器
   private timerId: number = -1
 
   aboutToAppear() {
@@ -24,7 +24,7 @@ export struct DataHomePage {
     this.timerId = setInterval(() => {
       this.updateAllValues()
       this.updateAlarms()
-      this.refreshTrigger++   // 每次数据更新都触发UI重绘
+      this.refreshCounter++                   // 每次数据更新都增加，触发Grid刷新
     }, 1000)
   }
 
@@ -32,18 +32,14 @@ export struct DataHomePage {
     clearInterval(this.timerId)
   }
 
-  private getSensorValue(tag: string): number | undefined {
-    const pretty = this.data_source.get_data?.sensor?.pretty
-    if (!pretty) return undefined
-    const item = pretty.find(s => s.tag === tag)
-    return item ? item.value : undefined
-  }
-
   private updateAllValues(): void {
-    const co2 = this.getSensorValue('二氧化碳')
-    const temp = this.getSensorValue('温度')
-    const hum = this.getSensorValue('湿度')
-    const noise = this.getSensorValue('噪声')
+    const pretty = this.data_source.get_data?.sensor?.pretty
+    if (!pretty) return
+
+    const co2 = pretty[0]?.value
+    const temp = pretty[5]?.value   // 温度索引5
+    const hum = pretty[4]?.value    // 湿度索引4
+    const noise = pretty[9]?.value  // 噪声索引9
 
     const co2Score = co2 !== undefined ? Math.max(0, Math.min(100, 100 - (co2 - 450) / 8.5)) : 50
     const tempScore = temp !== undefined ? Math.max(0, Math.min(100, 100 - Math.abs(temp - 24) * 7.5)) : 50
@@ -89,8 +85,9 @@ export struct DataHomePage {
 
         Scroll() {
           Column({ space: AppDimensions.SPACING_LG }) {
-            // ========== 综合工况指数 ==========
+            // ========== 综合工况指数（新布局） ==========
             Column() {
+              // 标题区
               Column({ space: 4 }) {
                 Text('综合工况指数')
                   .fontSize(18)
@@ -105,12 +102,24 @@ export struct DataHomePage {
               .padding({ left: 8, top: 8, bottom: 8 })
 
               Row({ space: 8 }) {
+                // 左侧：CO₂ 和 湿度
                 Column({ space: 12 }) {
-                  this.buildMetricCard('CO₂', this.getSensorValue('二氧化碳'), 'ppm', true)
-                  this.buildMetricCard('湿度', this.getSensorValue('湿度'), '%RH', false)
+                  this.buildMetricCard(
+                    'CO₂',
+                    this.data_source.get_data.sensor.pretty[0]?.value,
+                    'ppm',
+                    true
+                  )
+                  this.buildMetricCard(
+                    '湿度',
+                    this.data_source.get_data.sensor.pretty[4]?.value,
+                    '%RH',
+                    false
+                  )
                 }
                 .layoutWeight(1)
 
+                // 中间：圆环
                 Stack({ alignContent: Alignment.Center }) {
                   Progress({ value: this.comfortScore, total: 100, type: ProgressType.Ring })
                     .backgroundColor('rgba(26, 48, 80, 0.6)')
@@ -128,9 +137,20 @@ export struct DataHomePage {
                 }
                 .layoutWeight(1.2)
 
+                // 右侧：温度和噪声
                 Column({ space: 12 }) {
-                  this.buildMetricCard('温度', this.getSensorValue('温度'), '℃', false)
-                  this.buildMetricCard('噪声', this.getSensorValue('噪声'), 'dB', false)
+                  this.buildMetricCard(
+                    '温度',
+                    this.data_source.get_data.sensor.pretty[5]?.value,
+                    '℃',
+                    false
+                  )
+                  this.buildMetricCard(
+                    '噪声',
+                    this.data_source.get_data.sensor.pretty[9]?.value,
+                    'dB',
+                    false
+                  )
                 }
                 .layoutWeight(1)
               }
@@ -143,7 +163,7 @@ export struct DataHomePage {
             .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
             .shadow({ radius: 20, color: 'rgba(0, 229, 255, 0.1)', offsetY: 8 })
 
-            // ========== 工业现场十合一传感器（方块网格 + 副标题） ==========
+            // ========== 工业现场十合一传感器（方块网格） ==========
             Column() {
               // 主标题 + 副标题
               Column({ space: 4 }) {
@@ -165,21 +185,18 @@ export struct DataHomePage {
                 ForEach(this.data_source.get_data.sensor.pretty, (item: data_array, index: number) => {
                   GridItem() {
                     Column({ space: AppDimensions.SPACING_SM }) {
-                      // 传感器名称
                       Text(item.tag)
                         .fontSize(AppDimensions.FONT_SIZE_MD)
                         .fontColor(AppColors.TEXT_SECONDARY)
                         .fontWeight(FontWeight.Medium)
                         .maxLines(1)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      // 数值（保留两位小数）
                       Text(item.value.toFixed(2))
                         .fontSize(26)
                         .fontWeight(FontWeight.Bold)
                         .fontColor(AppColors.TEXT_PRIMARY)
                         .maxLines(1)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      // 单位
                       Text(item.unit)
                         .fontSize(AppDimensions.FONT_SIZE_SM)
                         .fontColor(AppColors.TEXT_TERTIARY)
@@ -193,7 +210,7 @@ export struct DataHomePage {
                     .borderWidth(1)
                     .borderColor('rgba(92, 210, 255, 0.25)')
                   }
-                }, (item: data_array, index: number) => index.toString() + '_' + this.refreshTrigger)  // 强制刷新
+                }, (item: data_array, index: number) => index.toString() + '_' + this.refreshCounter) // 强制刷新
               }
               .columnsTemplate('1fr 1fr')
               .columnsGap(AppDimensions.SPACING_MD)
