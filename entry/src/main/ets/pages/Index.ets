@@ -17,9 +17,9 @@ struct Index {
   private pageStack: NavPathStack = new NavPathStack()
   /** 底栏三项配置：与 pushPathByName 的路由名（ChatPage / DataPage / DevicePage）对应 */
   private readonly bottomTabs: BottomTabItem[] = [
-    { id: 'chat', label: $r('app.string.tab_chat'), icon: $r('app.media.startIcon') },
-    { id: 'data', label: $r('app.string.tab_data'), icon: $r('app.media.startIcon') },
-    { id: 'device', label: $r('app.string.tab_device'), icon: $r('app.media.startIcon') }
+    { id: 'chat', label: $r('app.string.tab_chat'), icon: $r('app.media.chat') },
+    { id: 'data', label: $r('app.string.tab_data'), icon: $r('app.media.data') },
+    { id: 'device', label: $r('app.string.tab_device'), icon: $r('app.media.device') }
   ]
   /** 当前选中的底栏 Tab，用于高亮样式 */
   @State selectedTabId: string = 'chat'
@@ -80,8 +80,8 @@ struct Index {
           Column({ space: 6 }) {
             Stack({ alignContent: Alignment.Center }) {
               Image(item.icon)
-                .width(26)
-                .height(26)
+                .width(item.id === 'chat' ? 32 : 26)
+                .height(item.id === 'chat' ? 26 : 26)
                 .objectFit(ImageFit.Contain)
                 .fillColor(this.selectedTabId === item.id ? '#FFD700' : '#999999')
                 .align(Alignment.Center)
