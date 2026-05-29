@@ -1,3 +1,4 @@
+// entry/src/main/ets/components/control/ControlButtons.ets
 import { AppColors } from '../../constants/AppColors'
 import { AppDimensions } from '../../constants/AppDimensions'
 import { ButtonType } from '../../models/ControlState'
@@ -16,9 +17,10 @@ export struct ControlButtons {
 
   build() {
     Row({ space: AppDimensions.SPACING_MD }) {
-      this.ControlButton('静音模式', ButtonType.MUTE)
-      this.ControlButton('告警模式', ButtonType.ALARM)
+      // 修改顺序：展示模式、告警模式、静音模式
       this.ControlButton('展示模式', ButtonType.DISPLAY)
+      this.ControlButton('告警模式', ButtonType.ALARM)
+      this.ControlButton('静音模式', ButtonType.MUTE)
     }
     .width('100%')
     .justifyContent(FlexAlign.SpaceBetween)
@@ -26,7 +28,6 @@ export struct ControlButtons {
 
   @Builder
   ControlButton(text: string, type: ButtonType) {
-    // 直接读取 this.selectedButton，确保 ArkTS 能正确追踪响应式依赖
     Text(text)
       .fontSize(AppDimensions.FONT_SIZE_SM)
       .fontColor(this.selectedButton === type ? AppColors.TEXT_PRIMARY : AppColors.BUTTON_TEXT)

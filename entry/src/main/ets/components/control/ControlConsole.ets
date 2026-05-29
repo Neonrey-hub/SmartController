@@ -6,12 +6,10 @@ import { ControlButtons } from './ControlButtons'
 import { StatusIndicator } from './StatusIndicator'
 import { ControlSlider } from './ControlSlider'
 import { curb_hardware } from "ets/network/API_risc"
-import { data_setting,setting } from "ets/network/get_data";
-
+import { data_setting, setting } from "ets/network/get_data";
 
 @ComponentV2
 export struct ControlConsole {
-  // @Local data_setting:setting = data_setting
   @Param controlState: ControlState = new ControlState();
   @Local selectedButton: ButtonType = this.controlState.selectedButton;
   @Param onLog?: (msg: string) => void = () => {};
@@ -24,6 +22,22 @@ export struct ControlConsole {
   private updateActuatorStats(): void {
     this.controlState.actuatorActive = data_setting.check_running();
     this.controlState.linkageRatio = Math.round((this.controlState.actuatorActive / this.controlState.actuatorTotal) * 100);
+  }
+
+  private setBrightness(value: number): void {
+    this.isstatus[4] = 1;
+    data_setting.get_data.actuators.brightness_percent = value;
+    curb_hardware.API_brightness(value);
+    this.controlState.change_smallLightBrightness(value);
+    setTimeout(() => { this.isstatus[4] = 0; }, 1500);
+  }
+
+  private setFanSpeed(value: number): void {
+    this.isstatus[5] = 1;
+    data_setting.get_data.actuators.fan_percent = value;
+    curb_hardware.API_fan(value);
+    this.controlState.fanSpeed = value;
+    setTimeout(() => { this.isstatus[5] = 0; }, 1500);
   }
 
   build() {
@@ -164,8 +178,13 @@ export struct ControlConsole {
     this.selectedButton = type;
     this.controlState.selectedButton = type;
 
+    // 定义各模式的亮度与风扇预设值
+    let brightness = 0;
+    let fanSpeed = 0;
+
     switch (type) {
       case ButtonType.DISPLAY:
+        // 展示模式：亮灯、蜂鸣器关，亮度80%，转速60%
         this.controlState.buzzerEnabled = false;
         this.controlState.greenLightEnabled = true;
         this.controlState.yellowLightEnabled = true;
@@ -174,13 +193,12 @@ export struct ControlConsole {
         curb_hardware.check_green(true);
         curb_hardware.check_yellow(true);
         curb_hardware.check_red(true);
-        this.isstatus = [1,1,1,1,0,0]
+        brightness = 80;
+        fanSpeed = 60;
         this.onLog?.('展示模式已应用');
-        setTimeout(()=>{
-          this.isstatus = [0,0,0,0,0,0]
-        },1500)
         break;
       case ButtonType.ALARM:
+        // 告警模式：蜂鸣器开、红灯亮其他关，亮度100%，转速80%
         this.controlState.buzzerEnabled = true;
         this.controlState.greenLightEnabled = false;
         this.controlState.yellowLightEnabled = false;
@@ -189,13 +207,12 @@ export struct ControlConsole {
         curb_hardware.check_green(false);
         curb_hardware.check_yellow(false);
         curb_hardware.check_red(true);
+        brightness = 100;
+        fanSpeed = 80;
         this.onLog?.('告警模式已应用');
-        this.isstatus = [1,1,1,1,0,0]
-        setTimeout(()=>{
-          this.isstatus = [0,0,0,0,0,0]
-        },1500)
         break;
       case ButtonType.MUTE:
+        // 静音模式：所有灯和蜂鸣器关，亮度0%，转速0%
         this.controlState.buzzerEnabled = false;
         this.controlState.greenLightEnabled = false;
         this.controlState.yellowLightEnabled = false;
@@ -204,13 +221,21 @@ export struct ControlConsole {
         curb_hardware.check_green(false);
         curb_hardware.check_yellow(false);
         curb_hardware.check_red(false);
+        brightness = 0;
+        fanSpeed = 0;
         this.onLog?.('静音模式已应用');
-        this.isstatus = [1,1,1,1,0,0]
-        setTimeout(()=>{
-          this.isstatus = [0,0,0,0,0,0]
-        },1500)
         break;
     }
+
+    // 应用亮度与风扇预设值
+    this.setBrightness(brightness);
+    this.setFanSpeed(fanSpeed);
     this.updateActuatorStats();
+
+    // 设置防抖标志（用于UI高亮，因为setBrightness/setFanSpeed已经设置了isstatus[4]和[5]）
+    this.isstatus = [1, 1, 1, 1, 1, 1];
+    setTimeout(() => {
+      this.isstatus = [0, 0, 0, 0, 0, 0];
+    }, 1500);
   }
 }
