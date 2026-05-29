@@ -16,15 +16,38 @@ export struct DataHomePage {
   @Local alarmItems: AlarmItem[] = []
   @Local abnormalCount: number = 0
   @Local refreshCounter: number = 0          // 强制刷新UI的计数器
+
+  // 计算属性：综合工况指数四个值，依赖 refreshCounter 和 data_source
+  @Computed
+  get co2Value(): string {
+    const val = this.data_source.get_data.sensor.pretty[0]?.value
+    return val !== undefined ? val.toFixed(0) : '--'
+  }
+  @Computed
+  get humidityValue(): string {
+    const val = this.data_source.get_data.sensor.pretty[4]?.value
+    return val !== undefined ? val.toFixed(1) : '--'
+  }
+  @Computed
+  get temperatureValue(): string {
+    const val = this.data_source.get_data.sensor.pretty[5]?.value
+    return val !== undefined ? val.toFixed(1) : '--'
+  }
+  @Computed
+  get noiseValue(): string {
+    const val = this.data_source.get_data.sensor.pretty[9]?.value
+    return val !== undefined ? val.toFixed(1) : '--'
+  }
+
   private timerId: number = -1
 
   aboutToAppear() {
-    this.updateAllValues()
+    this.updateComfortScore()
     this.updateAlarms()
     this.timerId = setInterval(() => {
-      this.updateAllValues()
+      this.updateComfortScore()
       this.updateAlarms()
-      this.refreshCounter++                   // 每次数据更新都增加，触发Grid刷新
+      this.refreshCounter++   // 触发所有 @Computed 重新计算，并刷新 UI
     }, 1000)
   }
 
@@ -32,14 +55,11 @@ export struct DataHomePage {
     clearInterval(this.timerId)
   }
 
-  private updateAllValues(): void {
-    const pretty = this.data_source.get_data?.sensor?.pretty
-    if (!pretty) return
-
-    const co2 = pretty[0]?.value
-    const temp = pretty[5]?.value   // 温度索引5
-    const hum = pretty[4]?.value    // 湿度索引4
-    const noise = pretty[9]?.value  // 噪声索引9
+  private updateComfortScore(): void {
+    const co2 = this.data_source.get_data.sensor.pretty[0]?.value
+    const temp = this.data_source.get_data.sensor.pretty[5]?.value
+    const hum = this.data_source.get_data.sensor.pretty[4]?.value
+    const noise = this.data_source.get_data.sensor.pretty[9]?.value
 
     const co2Score = co2 !== undefined ? Math.max(0, Math.min(100, 100 - (co2 - 450) / 8.5)) : 50
     const tempScore = temp !== undefined ? Math.max(0, Math.min(100, 100 - Math.abs(temp - 24) * 7.5)) : 50
@@ -85,7 +105,7 @@ export struct DataHomePage {
 
         Scroll() {
           Column({ space: AppDimensions.SPACING_LG }) {
-            // ========== 综合工况指数（新布局） ==========
+            // ========== 综合工况指数（使用 @Computed 实现实时刷新） ==========
             Column() {
               // 标题区
               Column({ space: 4 }) {
@@ -104,18 +124,8 @@ export struct DataHomePage {
               Row({ space: 8 }) {
                 // 左侧：CO₂ 和 湿度
                 Column({ space: 12 }) {
-                  this.buildMetricCard(
-                    'CO₂',
-                    this.data_source.get_data.sensor.pretty[0]?.value,
-                    'ppm',
-                    true
-                  )
-                  this.buildMetricCard(
-                    '湿度',
-                    this.data_source.get_data.sensor.pretty[4]?.value,
-                    '%RH',
-                    false
-                  )
+                  this.buildMetricCard('CO₂', this.co2Value, 'ppm')
+                  this.buildMetricCard('湿度', this.humidityValue, '%RH')
                 }
                 .layoutWeight(1)
 
@@ -139,18 +149,8 @@ export struct DataHomePage {
 
                 // 右侧：温度和噪声
                 Column({ space: 12 }) {
-                  this.buildMetricCard(
-                    '温度',
-                    this.data_source.get_data.sensor.pretty[5]?.value,
-                    '℃',
-                    false
-                  )
-                  this.buildMetricCard(
-                    '噪声',
-                    this.data_source.get_data.sensor.pretty[9]?.value,
-                    'dB',
-                    false
-                  )
+                  this.buildMetricCard('温度', this.temperatureValue, '℃')
+                  this.buildMetricCard('噪声', this.noiseValue, 'dB')
                 }
                 .layoutWeight(1)
               }
@@ -210,7 +210,7 @@ export struct DataHomePage {
                     .borderWidth(1)
                     .borderColor('rgba(92, 210, 255, 0.25)')
                   }
-                }, (item: data_array, index: number) => index.toString() + '_' + this.refreshCounter) // 强制刷新
+                }, (item: data_array, index: number) => index.toString() + '_' + this.refreshCounter)
               }
               .columnsTemplate('1fr 1fr')
               .columnsGap(AppDimensions.SPACING_MD)
@@ -254,30 +254,20 @@ export struct DataHomePage {
   }
 
   @Builder
-  buildMetricCard(label: string, value: number | undefined, unit: string, isCo2: boolean = false) {
+  buildMetricCard(label: string, value: string, unit: string) {
     Column() {
       Text(label)
         .fontSize(12)
         .fontColor('#86B9D2')
         .width('100%')
         .textAlign(TextAlign.Center)
-      if (value !== undefined) {
-        Text(isCo2 ? value.toFixed(0) : value.toFixed(1))
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#E9FBFF')
-          .width('100%')
-          .textAlign(TextAlign.Center)
-          .margin({ top: 4 })
-      } else {
-        Text('--')
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#E9FBFF')
-          .width('100%')
-          .textAlign(TextAlign.Center)
-          .margin({ top: 4 })
-      }
+      Text(value)
+        .fontSize(24)
+        .fontWeight(FontWeight.Bold)
+        .fontColor('#E9FBFF')
+        .width('100%')
+        .textAlign(TextAlign.Center)
+        .margin({ top: 4 })
       Text(unit)
         .fontSize(10)
         .fontColor('#6FA6C0')
