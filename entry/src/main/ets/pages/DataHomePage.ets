@@ -93,7 +93,7 @@ export struct DataHomePage {
     const pretty = this.data_source.get_data?.sensor?.pretty || []
     const items: SensorItem[] = []
     for (const s of pretty) {
-      items.push({ name: s.tag, value: s.value.toFixed(1), unit: s.unit })
+      items.push({ name: s.tag, value: s.value.toFixed(2), unit: s.unit })
     }
     return items
   }
@@ -166,7 +166,7 @@ export struct DataHomePage {
                       .fontColor('#86B9D2')
                       .width('100%')
                       .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[4]?.value?.toFixed(1) ?? '--')
+                    Text(this.data_source.get_data.sensor.pretty[4]?.value?.toFixed(2) ?? '--')
                       .fontSize(24)
                       .fontWeight(FontWeight.Bold)
                       .fontColor('#E9FBFF')
@@ -219,7 +219,7 @@ export struct DataHomePage {
                       .fontColor('#86B9D2')
                       .width('100%')
                       .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[5]?.value?.toFixed(1) ?? '--')
+                    Text(this.data_source.get_data.sensor.pretty[5]?.value?.toFixed(2) ?? '--')
                       .fontSize(24)
                       .fontWeight(FontWeight.Bold)
                       .fontColor('#E9FBFF')
@@ -246,7 +246,7 @@ export struct DataHomePage {
                       .fontColor('#86B9D2')
                       .width('100%')
                       .textAlign(TextAlign.Center)
-                    Text(this.data_source.get_data.sensor.pretty[9]?.value?.toFixed(1) ?? '--')
+                    Text(this.data_source.get_data.sensor.pretty[9]?.value?.toFixed(2) ?? '--')
                       .fontSize(24)
                       .fontWeight(FontWeight.Bold)
                       .fontColor('#E9FBFF')
@@ -308,7 +308,7 @@ export struct DataHomePage {
 
                     // 数值 + 单位
                     Row({ space: 39 }) {
-                      Text(item.value.toFixed(1).toString())
+                      Text(item.value.toFixed(2).toString())
                         .fontSize(AppDimensions.FONT_SIZE_XL)
                         .fontColor(AppColors.TEXT_PRIMARY)
                         .fontWeight(FontWeight.Bold)
