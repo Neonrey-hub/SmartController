@@ -87,7 +87,7 @@ export struct DataHomePage {
 
         Scroll() {
           Column({ space: AppDimensions.SPACING_LG }) {
-            // ========== 综合工况指数（CO₂ / 湿度 / 温度 / 噪声） ==========
+            // ========== 综合工况指数 ==========
             Column() {
               Column({ space: 4 }) {
                 Text('综合工况指数')
@@ -103,14 +103,12 @@ export struct DataHomePage {
               .padding({ left: 8, top: 8, bottom: 8 })
 
               Row({ space: 8 }) {
-                // 左侧：CO₂ 和 湿度
                 Column({ space: 12 }) {
                   this.buildMetricCard('CO₂', this.getSensorValue('二氧化碳'), 'ppm', true)
                   this.buildMetricCard('湿度', this.getSensorValue('湿度'), '%RH', false)
                 }
                 .layoutWeight(1)
 
-                // 中间圆环
                 Stack({ alignContent: Alignment.Center }) {
                   Progress({ value: this.comfortScore, total: 100, type: ProgressType.Ring })
                     .backgroundColor('rgba(26, 48, 80, 0.6)')
@@ -128,7 +126,6 @@ export struct DataHomePage {
                 }
                 .layoutWeight(1.2)
 
-                // 右侧：温度和噪声
                 Column({ space: 12 }) {
                   this.buildMetricCard('温度', this.getSensorValue('温度'), '℃', false)
                   this.buildMetricCard('噪声', this.getSensorValue('噪声'), 'dB', false)
@@ -144,14 +141,20 @@ export struct DataHomePage {
             .border({ width: 1, color: 'rgba(0, 229, 255, 0.25)' })
             .shadow({ radius: 20, color: 'rgba(0, 229, 255, 0.1)', offsetY: 8 })
 
-            // ========== 工业现场十合一传感器（网格布局，无副标题） ==========
+            // ========== 工业现场十合一传感器（网格布局 + 副标题） ==========
             Column() {
+              // 主标题
               Text('工业现场十合一传感器')
                 .fontSize(AppDimensions.FONT_SIZE_MD)
                 .fontWeight(FontWeight.Bold)
                 .fontColor(AppColors.TEXT_SECONDARY)
                 .width('100%')
-                .margin({ bottom: AppDimensions.SPACING_MD })
+              // 副标题
+              Text('边缘实时采集与状态感知')
+                .fontSize(11)
+                .fontColor(AppColors.TEXT_TERTIARY)
+                .width('100%')
+                .margin({ top: 4, bottom: AppDimensions.SPACING_MD })
 
               Grid() {
                 ForEach(this.data_source.get_data.sensor.pretty, (item: data_array, index: number) => {
@@ -182,7 +185,7 @@ export struct DataHomePage {
                     .borderWidth(1)
                     .borderColor('rgba(92, 210, 255, 0.25)')
                   }
-                }, (item: data_array, index: number) => index.toString())
+                }, (item: data_array, index: number) => index.toString()) // 与原 List 完全相同的 key 策略
               }
               .columnsTemplate('1fr 1fr')
               .columnsGap(AppDimensions.SPACING_MD)
@@ -194,7 +197,6 @@ export struct DataHomePage {
             .backgroundColor(AppColors.CARD_BG)
             .borderRadius(AppDimensions.RADIUS_LG)
 
-            // 边缘数据质量
             EdgeDataQuality({ abnormalCount: this.abnormalCount })
               .width('100%')
               .borderRadius(16)
