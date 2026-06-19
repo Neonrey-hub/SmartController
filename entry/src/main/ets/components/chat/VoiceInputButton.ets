@@ -121,7 +121,7 @@ export struct VoiceInputButton {
         if (this.isRecording) {
           Text('停止').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
         } else {
-          Text('按住说话').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
+          Text('点击说话').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
         }
       }
       .width(180).height(44).borderRadius(22)
