@@ -118,18 +118,10 @@ export struct VoiceInputButton {
         .fontSize(12).fontColor(this.isRecording ? '#FFD700' : '#8899AA')
         .margin({ bottom: 6 })
       Button() {
-        Stack() {
-          if (this.isRecording) {
-            Row({ space: 6 }) {
-              Image($r('app.media.startIcon')).width(20).height(20).fillColor('#FFFFFF')
-              Text('停止').fontSize(14).fontColor('#FFFFFF')
-            }
-          } else {
-            Row({ space: 6 }) {
-              Image($r('app.media.startIcon')).width(20).height(20).fillColor('#FFFFFF')
-              Text('点击说话').fontSize(14).fontColor('#FFFFFF')
-            }
-          }
+        if (this.isRecording) {
+          Text('停止').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
+        } else {
+          Text('按住说话').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
         }
       }
       .width(180).height(44).borderRadius(22)
