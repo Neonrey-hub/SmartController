@@ -127,7 +127,7 @@ export struct VoiceInputButton {
           } else {
             Row({ space: 6 }) {
               Image($r('app.media.startIcon')).width(20).height(20).fillColor('#FFFFFF')
-              Text('按住说话').fontSize(14).fontColor('#FFFFFF')
+              Text('点击说话').fontSize(14).fontColor('#FFFFFF')
             }
           }
         }
