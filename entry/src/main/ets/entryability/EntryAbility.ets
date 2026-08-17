@@ -3,6 +3,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { initApiUrl } from '../network/API_URL';
 import { setting,data_setting } from "ets/network/get_data";
+import { EnvLoader } from '../common/EnvLoader';
 
 
 const DOMAIN = 0x0000;
@@ -13,6 +14,7 @@ export default class EntryAbility extends UIAbility {
       this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
       initApiUrl(this.context);
       data_setting.startAutoSend()
+      EnvLoader.load();
     } catch (err) {
       hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
     }

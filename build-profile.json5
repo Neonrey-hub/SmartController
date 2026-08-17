@@ -47,11 +47,11 @@
         "material": {
           "certpath": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.cer",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B7A02CC861B1C83FA035CB3989904B461B679D6F1B771DCE5D89C67FF4E5A8C4D060A9D5251E17A",
+          "keyPassword": "0000001B4F2FA46DEE3B56A9ABB251BC367B6BB71633DE5238DA9879CEB004DBFAB72F9983A8B8617B5000",
           "profile": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.p7b",
           "signAlg": "SHA256withECDSA",
           "storeFile": "C:/Users/MR/.ohos/config/openharmony/default_SmartController_8V7kcbI-1E7aadXBtgA2rGMwof_b8yM4QPCJq_TO9Q8=.p12",
-          "storePassword": "0000001B8793D8420BD56FF6EFDD7D4C82B2F218491B81BF73902FF75C5091A7A2D56E1C0CEB9B789B469B"
+          "storePassword": "0000001B43230C017594A66EBC3F8399EBA5E0D50BA821123A6B9403C186EEE27F973F2E7E1BF8EDA3BC32"
         }
       }
     ]

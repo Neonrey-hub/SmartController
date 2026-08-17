@@ -8,7 +8,7 @@ import { generateAlarms } from '../utils/AlarmUtils'
 import { AppColors } from '../constants/AppColors'
 import { AppDimensions } from '../constants/AppDimensions'
 import { AlarmQueue, AlarmItem, AlarmLevel } from '../components/log/AlarmQueue'
-
+@Preview
 @ComponentV2
 export struct DataHomePage {
   @Local data_source: setting = data_setting

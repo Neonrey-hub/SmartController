@@ -4,7 +4,7 @@ import { promptAction } from '@kit.ArkUI'
 import { ExitConfirmManager } from '../common/Constants'
 import { VoiceInputButton } from '../components/chat/VoiceInputButton'
 import { data_setting, setting } from "ets/network/get_data";
-
+@Preview
 @ComponentV2
 export struct ChatPage {
   @Local network_connect: WebSocket_connect = network_connect;

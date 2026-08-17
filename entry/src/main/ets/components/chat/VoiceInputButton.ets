@@ -67,16 +67,8 @@ export struct VoiceInputButton {
     });
   }
 
-  async toggleRecording(): Promise<void> {
-    if (!this.permissionGranted) {
-      this.permissionGranted = await PermissionManager.checkAndRequestPermissions(this.context);
-      if (!this.permissionGranted) return;
-    }
-    if (this.isRecording) this.stopRecording();
-    else this.startRecording();
-  }
-
   async startRecording(): Promise<void> {
+    if (this.isRecording) return;
     try {
       this.recognizedText = '';
       this.statusText = '正在连接...';
@@ -99,6 +91,7 @@ export struct VoiceInputButton {
   }
 
   stopRecording(): void {
+    if (!this.isRecording) return;
     this.asrManager.sendEnd();
     this.audioManager.stop();
     this.isRecording = false;
@@ -119,15 +112,28 @@ export struct VoiceInputButton {
         .margin({ bottom: 6 })
       Button() {
         if (this.isRecording) {
-          Text('停止').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
+          Text('松开结束').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
         } else {
-          Text('点击说话').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
+          Text('按住说话').fontSize(14).fontColor('#FFFFFF').textAlign(TextAlign.Center).width('100%')
         }
       }
       .width(180).height(44).borderRadius(22)
       .backgroundColor(this.isRecording ? '#FF4D4F' : '#4A90E2')
       .shadow({ radius: 6, color: this.isRecording ? '#FF4D4F40' : '#4A90E240', offsetY: 3 })
-      .onClick(() => { this.toggleRecording(); })
+      .onTouch((event: TouchEvent) => {
+        if (event.type === TouchType.Down) {
+          if (!this.permissionGranted) {
+            PermissionManager.checkAndRequestPermissions(this.context).then((granted) => {
+              this.permissionGranted = granted;
+              if (granted) this.startRecording();
+            });
+          } else {
+            this.startRecording();
+          }
+        } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+          this.stopRecording();
+        }
+      })
     }
     .width('100%').padding({ top: 8, bottom: 12 }).alignItems(HorizontalAlign.Center)
   }
